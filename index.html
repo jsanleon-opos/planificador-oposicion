@@ -6188,155 +6188,70 @@ else if (sectionId === 'banco-clave') {
 
 
         function obtenerEstadoEstudio(itemId) {
-
             let plans = appState.planificacion.filter(p => p.id === itemId && p.completed === true && p.date !== 'inbox');
-
+            
+            // Si es una subsección de un tema (T-X-Y-custom-Z), hereda si se completó el tema padre directo
             if (itemId.includes('-custom-')) {
-
                 const parentThemeId = itemId.split('-custom-')[0];
-
                 const parentPlans = appState.planificacion.filter(p => p.id === parentThemeId && p.completed === true && p.date !== 'inbox');
-
                 plans = [...plans, ...parentPlans];
-
             }
-
+            
+            // Si es un artículo o subsección de ley, hereda si se completó la ley/título padre directo
             const ancestros = obtenerAncestrosLey(itemId);
-
             ancestros.forEach(ancId => {
-
                 const parentPlans = appState.planificacion.filter(p => p.id === ancId && p.completed === true && p.date !== 'inbox');
-
                 plans = [...plans, ...parentPlans];
-
             });
 
-
-
-            function buscarTemaDeLey(nodos, targetId) {
-
-                for (let n of nodos) {
-
-                    if (n.id === targetId && n.temaVinculado) return n.temaVinculado;
-
-                    if (n.hijos && n.hijos.length > 0) {
-
-                        const res = buscarTemaDeLey(n.hijos, targetId);
-
-                        if (res) return res;
-
-                    }
-
-                }
-
-                return null;
-
-            }
-
-            const temaVinculado = buscarTemaDeLey(appState.leyes, itemId);
-
-            if (temaVinculado) {
-
-                const temaPlans = appState.planificacion.filter(p => p.id === temaVinculado && p.completed === true && p.date !== 'inbox');
-
-                plans = [...plans, ...temaPlans];
-
-            }
-
-
-
+            // Si es un TEMA oficial, comprueba si se completó alguna de las leyes vinculadas a él
             if (itemId.startsWith('T-')) {
-
                 function recopilarLeyesDeTema(nodos, tId) {
-
                     let ids = [];
-
                     for (let n of nodos) {
-
-                        if (n.temaVinculado === tId) ids.push(n.id);
-
+                        const temasNodo = normalizarTemasVinculados(n);
+                        if (temasNodo.includes(tId)) ids.push(n.id);
                         if (n.hijos && n.hijos.length > 0) ids.push(...recopilarLeyesDeTema(n.hijos, tId));
-
                     }
-
                     return ids;
-
                 }
-
                 const leyesAsociadas = recopilarLeyesDeTema(appState.leyes, itemId);
-
                 leyesAsociadas.forEach(lId => {
-
                     const leyPlans = appState.planificacion.filter(p => p.id === lId && p.completed === true && p.date !== 'inbox');
-
                     plans = [...plans, ...leyPlans];
-
                 });
-
             }
-
-
 
             if (plans.length === 0) {
-
                 const isPlannedPending = appState.planificacion.some(p => p.id === itemId && p.completed === false && p.date !== 'inbox');
-
                 if (isPlannedPending) return 'en-curso';
-
                 return 'no-estudiado';
-
             }
-
-
 
             // Comprobar si tiene una fecha límite de repaso personalizada
-
             const fechaLimiteRepaso = obtenerCadenciaRepaso(itemId);
-
             const today = new Date();
-
             today.setHours(0,0,0,0);
 
-
-
             if (fechaLimiteRepaso) {
-
                 const limite = parseDateLocal(fechaLimiteRepaso);
-
                 limite.setHours(0,0,0,0);
-
                 return today > limite ? 'olvidado' : 'completado-reciente';
-
             }
 
-
-
             let latestDate = null;
-
             plans.forEach(p => {
-
                 if (p.date === 'inbox') return;
-
                 const planDate = parseDateLocal(p.date);
-
                 if (!latestDate || planDate > latestDate) latestDate = planDate;
-
             });
 
-
-
             if (!latestDate) return 'no-estudiado';
-
             latestDate.setHours(0,0,0,0);
-
             const msDiff = today - latestDate;
-
             const daysDiff = Math.ceil(msDiff / (1000 * 60 * 60 * 24));
-
             return daysDiff > 14 ? 'olvidado' : 'completado-reciente';
-
         }
-
 
 
         function obtenerEstadoTema(tema, bloqueNumero) {
