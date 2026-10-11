@@ -249,23 +249,20 @@
     <aside class="w-full md:w-64 bg-white border-b md:border-b-0 md:border-r border-slate-200 flex flex-col shrink-0 z-30 md:sticky md:top-0 md:h-screen">
 
         <!-- Logo & Header -->
-
         <div class="p-4 border-b border-slate-100 flex items-center gap-3 shrink-0">
-
-            <div class="h-9 w-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600">
-
+            <div class="h-9 w-9 rounded-xl bg-indigo-50 flex items-center justify-center text-indigo-600 shrink-0 shadow-2xs">
                 <i class="fa-solid fa-graduation-cap text-base"></i>
-
             </div>
-
-            <div>
-
-                <h1 class="font-extrabold text-xs tracking-tight text-slate-900 leading-none">OPOSICIONES C1</h1>
-
+            <div class="min-w-0">
+                <div class="flex items-center gap-1.5">
+                    <h1 class="font-extrabold text-xs tracking-tight text-slate-900 leading-none">OPOSICIONES C1</h1>
+                    <span class="text-[8px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200 px-1 py-0.2 rounded font-mono">v3.3</span>
+                </div>
                 <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1">Planificador Multi-Destino</p>
-
+                <p class="text-[8px] text-slate-400/90 font-medium tracking-tight mt-0.5 truncate">
+                    Por <strong class="text-slate-600 dark:text-slate-300">Julio Sánchez</strong> & <strong class="text-indigo-600 dark:text-indigo-400">Gemini</strong>
+                </p>
             </div>
-
         </div>
 
 
@@ -324,6 +321,10 @@
 
                 Registro Test CAM
 
+            </button>
+<button onclick="showSection('evolucion-test')" id="nav-evolucion-test" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:bg-slate-50">
+                <i class="fa-solid fa-chart-simple text-sm text-indigo-500"></i>
+                Evolución Test Parciales
             </button>
 
             <button onclick="showSection('planificador')" id="nav-planificador" class="nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:bg-slate-50">
@@ -1395,13 +1396,10 @@
                                 <label class="text-[8px] font-extrabold tracking-wider text-slate-400 uppercase block">Tipo de Test</label>
 
                                 <select id="reg-test-type" onchange="onTestTypeChange()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:outline-none p-1.5 rounded-xl text-xs font-bold">
-
                                     <option value="parcial">Test Parcial (Por tema o ley)</option>
-
+                                    <option value="oficial_teorico">Examen Oficial Teórico (Parte I - 70 Q)</option>
                                     <option value="oficial_completo">Examen Oficial Completo (P1 + P2)</option>
-
                                     <option value="supuesto_oficial">Supuesto Práctico Oficial (P2)</option>
-
                                 </select>
 
                             </div>
@@ -2094,7 +2092,82 @@
 
             </section>
 
+<!-- SECTION: EVOLUCIÓN DE TEST PARCIALES Y TEÓRICOS -->
+            <section id="sec-evolucion-test" class="hidden space-y-6">
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs space-y-4">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 border-b border-slate-100 pb-3">
+                        <div>
+                            <h3 class="font-extrabold text-sm text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                                <i class="fa-solid fa-chart-spline text-indigo-600"></i>
+                                Progresión y Curva por Materia
+                            </h3>
+                            <p class="text-[10px] text-slate-400 font-semibold mt-0.5">Analiza el histórico de calificaciones y tendencia de acierto para un tema, norma o prueba específica.</p>
+                        </div>
+                        <div class="w-full sm:w-80">
+                            <label class="text-[9px] font-black uppercase tracking-wider text-slate-400 block mb-1">Seleccionar Materia / Test:</label>
+                            <select id="select-evolucion-materia" onchange="actualizarVistaEvolucionTest()" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:outline-none p-2 rounded-xl text-xs font-bold text-slate-800 transition-colors">
+                            </select>
+                        </div>
+                    </div>
 
+                    <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 pt-1">
+                        <div class="bg-slate-50 border border-slate-150 p-3 rounded-xl text-center">
+                            <span class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest block">Intentos</span>
+                            <span id="evo-kpi-intentos" class="text-base font-black text-slate-800 font-mono">0</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-150 p-3 rounded-xl text-center">
+                            <span class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest block">Última Nota</span>
+                            <span id="evo-kpi-ultima" class="text-base font-black text-slate-800 font-mono">0.0%</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-150 p-3 rounded-xl text-center">
+                            <span class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest block">Media Neta</span>
+                            <span id="evo-kpi-media" class="text-base font-black text-indigo-700 font-mono">0.0%</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-150 p-3 rounded-xl text-center">
+                            <span class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest block">Mejor Marca</span>
+                            <span id="evo-kpi-maxima" class="text-base font-black text-emerald-600 font-mono">0.0%</span>
+                        </div>
+                        <div class="bg-slate-50 border border-slate-150 p-3 rounded-xl text-center col-span-2 sm:col-span-1">
+                            <span class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest block">Tendencia</span>
+                            <span id="evo-kpi-tendencia" class="text-xs font-black font-mono block mt-1 text-slate-500">-</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 p-5 rounded-2xl shadow-xs space-y-3">
+                    <div class="flex justify-between items-center border-b border-slate-100 pb-2.5">
+                        <span class="text-xs font-black text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                            <span class="h-2 w-2 rounded-full bg-indigo-500"></span> Curva Temporal de Puntuaciones
+                        </span>
+                        <div class="flex items-center gap-3 text-[10px] font-bold text-slate-500">
+                            <span class="flex items-center gap-1.5"><span class="h-2 w-2 rounded-full bg-indigo-500"></span> Puntuación</span>
+                            <span class="flex items-center gap-1.5"><span class="h-0.5 w-3 bg-amber-500"></span> Nivel de Aprobado / Corte</span>
+                        </div>
+                    </div>
+                    <div class="w-full h-80 bg-white rounded-xl border border-slate-150 p-2 relative overflow-hidden">
+                        <svg id="evolucion-svg-chart" class="w-full h-full" viewBox="0 0 760 320"></svg>
+                        <div id="chart-tooltip-evo" class="hidden absolute pointer-events-none bg-slate-900/90 text-white text-[10px] font-mono py-1.5 px-2.5 rounded-lg shadow-xl backdrop-blur-xs z-20 border border-slate-700/50 transition-all"></div>
+                    </div>
+                </div>
+
+                <div class="bg-white border border-slate-200 p-4 rounded-2xl shadow-xs space-y-3">
+                    <h4 class="font-extrabold text-xs text-slate-800 uppercase tracking-widest">Historial Detallado de la Materia</h4>
+                    <div class="overflow-x-auto max-h-[260px] overflow-y-auto border border-slate-100 rounded-xl">
+                        <table class="w-full text-xs text-left">
+                            <thead class="bg-slate-50 text-slate-400 font-bold uppercase text-[9px] tracking-wider border-b border-slate-150 sticky top-0 z-10">
+                                <tr>
+                                    <th class="py-2 px-3">Fecha</th>
+                                    <th class="py-2 px-3">Preguntas</th>
+                                    <th class="py-2 px-3">Desglose (A / F / B)</th>
+                                    <th class="py-2 px-3">Puntuación Neta</th>
+                                    <th class="py-2 px-3 text-center">Calificación</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-evolucion-body" class="divide-y divide-slate-100"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
 
             <!-- SECTION 5: PLANIFICADOR DIARIO Y SEMANAL -->
 
@@ -3981,9 +4054,8 @@
 
             updateLiveDate();
 actualizarBotonFiltroLeyesActivas();
-
-            renderAllViews();
-
+actualizarTextoBackup();
+renderAllViews();
             showSection('dashboard');
 
         };
@@ -5942,145 +6014,85 @@ function toggleDarkMode() {
 
 
         function showSection(sectionId) {
-
             appState.currentSection = sectionId;
 
             document.getElementById('sec-dashboard').classList.add('hidden');
-
             document.getElementById('sec-temario').classList.add('hidden');
-
             document.getElementById('sec-test').classList.add('hidden');
-
             document.getElementById('sec-testcam').classList.add('hidden');
-
             document.getElementById('sec-planificador').classList.add('hidden');
 
-const secRutina = document.getElementById('sec-rutina-semanal');
+            const secEvo = document.getElementById('sec-evolucion-test');
+            if (secEvo) secEvo.classList.add('hidden');
 
-if (secRutina) secRutina.classList.add('hidden');
+            const secRutina = document.getElementById('sec-rutina-semanal');
+            if (secRutina) secRutina.classList.add('hidden');
 
-const secClave = document.getElementById('sec-banco-clave');
+            const secClave = document.getElementById('sec-banco-clave');
+            if (secClave) secClave.classList.add('hidden');
 
-if (secClave) secClave.classList.add('hidden');
-
-
-
-            document.getElementById(`sec-${sectionId}`).classList.remove('hidden');
-
-
+            const targetSec = document.getElementById(`sec-${sectionId}`);
+            if (targetSec) targetSec.classList.remove('hidden');
 
             const navButtons = document.querySelectorAll('.nav-btn');
-
             navButtons.forEach(btn => {
-
                 btn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-bold transition-all text-slate-500 hover:bg-slate-50";
-
             });
 
-
-
             let btnId = `nav-${sectionId}`;
-
             if (sectionId === 'temario') btnId = 'nav-navtemario';
-
             const activeBtn = document.getElementById(btnId);
-
             if (activeBtn) {
-
                 activeBtn.className = "nav-btn w-full flex items-center gap-3 px-3 py-2 rounded-xl text-xs font-extrabold transition-all text-indigo-700 bg-indigo-50/70 border-r-4 border-indigo-600";
-
             }
-
-
 
             const title = document.getElementById('section-title');
-
             const subtitle = document.getElementById('section-subtitle');
 
-
+            if (sectionId === 'dashboard') {
+                title.innerHTML = "Dashboard General";
+                subtitle.innerText = "Visión global de tu avance y rendimiento de simulacros multi-destino";
+            } else if (sectionId === 'temario') {
+                title.innerText = "Temario y Legislación";
+                subtitle.innerText = "Consulta los contenidos de la convocatoria oficial y añade leyes";
+            } else if (sectionId === 'test') {
+                title.innerHTML = `<span class="inline-flex flex-col h-3.5 w-5 rounded-xs overflow-hidden border border-amber-500 align-middle mr-2"><span class="bg-[#ad1519] h-1/4 w-full"></span><span class="bg-[#fabd00] h-2/4 w-full flex items-center justify-center text-[4px] leading-none">👑</span><span class="bg-[#ad1519] h-1/4 w-full"></span></span> Registro de Test - AGE`;
+                subtitle.innerText = "Inscribe tus calificaciones del examen del Estado y calcula tus puntuaciones directas y transformadas";
+            } else if (sectionId === 'testcam') {
+                title.innerHTML = `
+                    <svg class="inline-block h-4 w-6 rounded-xs border border-red-700 align-middle mr-2" viewBox="0 0 11 7" fill="#e2001a" xmlns="http://www.w3.org/2000/svg">
+                        <rect width="11" height="7" />
+                        <circle cx="2.5" cy="2.5" r="0.4" fill="white"/>
+                        <circle cx="4.5" cy="2.5" r="0.4" fill="white"/>
+                        <circle cx="6.5" cy="2.5" r="0.4" fill="white"/>
+                        <circle cx="8.5" cy="2.5" r="0.4" fill="white"/>
+                        <circle cx="3.5" cy="4.5" r="0.4" fill="white"/>
+                        <circle cx="5.5" cy="4.5" r="0.4" fill="white"/>
+                        <circle cx="7.5" cy="4.5" r="0.4" fill="white"/>
+                    </svg> Registro de Test - Comunidad de Madrid`;
+                subtitle.innerText = "Inscribe y analiza los tres ejercicios independientes de Administrativos de la Comunidad de Madrid";
+            } else if (sectionId === 'evolucion-test') {
+                title.innerHTML = `<i class="fa-solid fa-chart-spline text-indigo-600 mr-2"></i> Evolución Test Parciales`;
+                subtitle.innerText = "Monitoriza la progresión de notas y curvas de aprendizaje por temas y normas específicas";
+                actualizarVistaEvolucionTest();
+            } else if (sectionId === 'planificador') {
+                title.innerText = "Planificador Diario y Semanal";
+                subtitle.innerText = "Organiza tu cronograma de estudio semanal de lunes a domingo";
+            } else if (sectionId === 'rutina-semanal') {
+                title.innerHTML = `<i class="fa-solid fa-layer-group text-indigo-600 mr-2"></i> Rutina Fija Semanal`;
+                subtitle.innerText = "Estructura orientativa de materias por días (Lunes a Domingo)";
+                renderRutinaSemanal();
+            } else if (sectionId === 'banco-clave') {
+                title.innerHTML = `<i class="fa-solid fa-bookmark text-indigo-600 mr-2"></i> Banco de Repaso Clave`;
+                subtitle.innerText = "Fichas de memorización activa de artículos, plazos oficiales y preguntas trampa";
+                renderFichasClave();
+            }
 
             if (sectionId === 'dashboard') {
-
-                title.innerHTML = "Dashboard General";
-
-                subtitle.innerText = "Visión global de tu avance y rendimiento de simulacros multi-destino";
-
-            } else if (sectionId === 'temario') {
-
-                title.innerText = "Temario y Legislación";
-
-                subtitle.innerText = "Consulta los contenidos de la convocatoria oficial y añade leyes";
-
-            } else if (sectionId === 'test') {
-
-                title.innerHTML = `<span class="inline-flex flex-col h-3.5 w-5 rounded-xs overflow-hidden border border-amber-500 align-middle mr-2"><span class="bg-[#ad1519] h-1/4 w-full"></span><span class="bg-[#fabd00] h-2/4 w-full flex items-center justify-center text-[4px] leading-none">👑</span><span class="bg-[#ad1519] h-1/4 w-full"></span></span> Registro de Test - AGE`;
-
-                subtitle.innerText = "Inscribe tus calificaciones del examen del Estado y calcula tus puntuaciones directas y transformadas";
-
-            } else if (sectionId === 'testcam') {
-
-                title.innerHTML = `
-
-                    <svg class="inline-block h-4 w-6 rounded-xs border border-red-700 align-middle mr-2" viewBox="0 0 11 7" fill="#e2001a" xmlns="http://www.w3.org/2000/svg">
-
-                        <rect width="11" height="7" />
-
-                        <circle cx="2.5" cy="2.5" r="0.4" fill="white"/>
-
-                        <circle cx="4.5" cy="2.5" r="0.4" fill="white"/>
-
-                        <circle cx="6.5" cy="2.5" r="0.4" fill="white"/>
-
-                        <circle cx="8.5" cy="2.5" r="0.4" fill="white"/>
-
-                        <circle cx="3.5" cy="4.5" r="0.4" fill="white"/>
-
-                        <circle cx="5.5" cy="4.5" r="0.4" fill="white"/>
-
-                        <circle cx="7.5" cy="4.5" r="0.4" fill="white"/>
-
-                    </svg> Registro de Test - Comunidad de Madrid`;
-
-                subtitle.innerText = "Inscribe y analiza los tres ejercicios independientes de Administrativos de la Comunidad de Madrid";
-
-            } else if (sectionId === 'planificador') {
-
-                title.innerText = "Planificador Diario y Semanal";
-
-                subtitle.innerText = "Organiza tu cronograma de estudio semanal de lunes a domingo";
-
-            }
-
-else if (sectionId === 'rutina-semanal') {
-
-    title.innerHTML = `<i class="fa-solid fa-layer-group text-indigo-600 mr-2"></i> Rutina Fija Semanal`;
-
-    subtitle.innerText = "Estructura orientativa de materias por días (Lunes a Domingo)";
-
-    renderRutinaSemanal(); // Ejecuta el pintado dinámico de las tarjetas
-
-}        
-
-else if (sectionId === 'banco-clave') {
-
-    title.innerHTML = `<i class="fa-solid fa-bookmark text-indigo-600 mr-2"></i> Banco de Repaso Clave`;
-
-    subtitle.innerText = "Fichas de memorización activa de artículos, plazos oficiales y preguntas trampa";
-
-    renderFichasClave();
-
-}
-
-    if (sectionId === 'dashboard') {
-
                 renderDashboardChart();
-
                 renderDashboardChartCam();
-
             }
-
         }
-
 
 
         function updateGlobalProgressBar() {
@@ -9286,59 +9298,38 @@ function normalizarTemasVinculados(nodo) {
     
 
         function onTestTypeChange() {
-
             const testType = document.getElementById('reg-test-type').value;
-
             const blockQuestions = document.getElementById('block-num-questions');
-
             const blockTema = document.getElementById('block-tema-select');
-
             const blockStandard = document.getElementById('block-standard-scores');
-
             const blockSplit = document.getElementById('block-split-scores');
 
-
-
             if (testType === 'parcial') {
-
                 blockQuestions.classList.remove('hidden');
-
                 blockTema.classList.remove('hidden');
-
                 blockStandard.classList.remove('hidden');
-
                 blockSplit.classList.add('hidden');
-
                 document.getElementById('reg-test-total-q').value = 20;
-
+            } else if (testType === 'oficial_teorico') {
+                blockQuestions.classList.add('hidden');
+                blockTema.classList.add('hidden');
+                blockStandard.classList.remove('hidden');
+                blockSplit.classList.add('hidden');
+                document.getElementById('reg-test-total-q').value = 70;
             } else if (testType === 'oficial_completo') {
-
                 blockQuestions.classList.add('hidden');
-
                 blockTema.classList.add('hidden');
-
                 blockStandard.classList.add('hidden');
-
                 blockSplit.classList.remove('hidden');
-
             } else if (testType === 'supuesto_oficial') {
-
                 blockQuestions.classList.add('hidden');
-
                 blockTema.classList.add('hidden');
-
                 blockStandard.classList.remove('hidden');
-
                 blockSplit.classList.add('hidden');
-
                 document.getElementById('reg-test-total-q').value = 20;
-
             }
-
             recalculatBlancos();
-
         }
-
 
 
        function populateTestThemeSelector() {
@@ -9421,7 +9412,7 @@ function normalizarTemasVinculados(nodo) {
 
             const type = document.getElementById('reg-test-type').value;
 
-            if (type === 'parcial' || type === 'supuesto_oficial') {
+          if (type === 'parcial' || type === 'supuesto_oficial' || type === 'oficial_teorico') {
 
                 const total = parseInt(document.getElementById('reg-test-total-q').value, 10) || 20;
 
@@ -9772,6 +9763,17 @@ function normalizarTemasVinculados(nodo) {
                 finalRecord.correct = correct; finalRecord.errors = errors; finalRecord.totalQ = 20;
 
                 finalRecord.detalles = `Caso Práctico | PD Directa: ${(correct - errors/3).toFixed(2)}/20 -> PT: ${pt.toFixed(2)}/50`;
+} else if (type === 'oficial_teorico') {
+                const correct = parseInt(document.getElementById('reg-test-correct').value, 10) || 0;
+                const errors = parseInt(document.getElementById('reg-test-errors').value, 10) || 0;
+                if (correct + errors > 70) {
+                    showToast("Error", "La suma de respuestas supera las 70 preguntas.");
+                    return;
+                }
+                const pt = calcularParteTransformada(correct, errors, 70, appState.corteObjetivo.p1);
+                finalRecord.notaGlobal = Math.max(0, parseFloat(pt.toFixed(2)));
+                finalRecord.correct = correct; finalRecord.errors = errors; finalRecord.totalQ = 70;
+                finalRecord.detalles = `Examen Teórico (P1) | PD: ${(correct - errors/3).toFixed(2)}/70 -> PT: ${pt.toFixed(2)}/50`;
 
             } else if (type === 'oficial_completo') {
 
@@ -11528,32 +11530,59 @@ function normalizarTemasVinculados(nodo) {
             return meses[date.getMonth()];
         }
 
-        function guardarProgresoCompleto() {
-            const backupPayload = {
-                sys: appState.syllabus,
-                ley: appState.leyes,
-                plan: appState.planificacion,
-                test: appState.tests,
-                testCam: appState.testsCam,
-                corte: appState.corteObjetivo,
-                fechas: appState.fechasOposicion,
-                accumulatedTime: appState.accumulatedStudyTime,
-                rutina: rutinaSemanalState,
-                fichasClave: appState.fichasClave || []
-            };
-            
-            const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(backupPayload));
-            const downloadAnchor = document.createElement('a');
-            downloadAnchor.setAttribute("href", dataStr);
-            downloadAnchor.setAttribute("download", `C1_AGE_CAM_PLANNER_${formatDateLocal(new Date())}.json`);
-            document.body.appendChild(downloadAnchor);
-            downloadAnchor.click();
-            downloadAnchor.remove();
+        async function guardarProgresoCompleto() {
+         const ahoraIso = new Date().toISOString();
+         const backupPayload = {
+             fechaBackup: ahoraIso,
+             sys: appState.syllabus,
+             ley: appState.leyes,
+             plan: appState.planificacion,
+             test: appState.tests,
+             testCam: appState.testsCam,
+             corte: appState.corteObjetivo,
+             fechas: appState.fechasOposicion,
+             accumulatedTime: appState.accumulatedStudyTime,
+             rutina: rutinaSemanalState,
+             fichasClave: appState.fichasClave || []
+         };
 
-            localStorage.setItem('c1_last_backup_date', new Date().toISOString());
-            actualizarTextoBackup();
-            showToast("Guardar", "Copia de seguridad descargada correctamente.");
-        }
+         const dataString = JSON.stringify(backupPayload, null, 2);
+         const fileName = `C1_AGE_CAM_PLANNER_${formatDateLocal(new Date())}.json`;
+
+         if (window.showSaveFilePicker) {
+             try {
+                 const handle = await window.showSaveFilePicker({
+                     suggestedName: fileName,
+                     types: [{
+                         description: 'Copia de Seguridad JSON',
+                         accept: { 'application/json': ['.json'] }
+                     }]
+                 });
+                 const writable = await handle.createWritable();
+                 await writable.write(dataString);
+                 await writable.close();
+
+                 localStorage.setItem('c1_last_backup_date', ahoraIso);
+                 actualizarTextoBackup();
+                 showToast("Guardar", "Copia guardada en la carpeta elegida.");
+                 return;
+             } catch (err) {
+                 if (err.name === 'AbortError') return;
+             }
+         }
+
+         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(dataString);
+         const downloadAnchor = document.createElement('a');
+         downloadAnchor.setAttribute("href", dataStr);
+         downloadAnchor.setAttribute("download", fileName);
+         document.body.appendChild(downloadAnchor);
+         downloadAnchor.click();
+         downloadAnchor.remove();
+
+         localStorage.setItem('c1_last_backup_date', ahoraIso);
+         actualizarTextoBackup();
+         showToast("Guardar", "Copia de seguridad descargada.");
+     }
 
         function actualizarTextoBackup() {
             const textEl = document.getElementById('backup-status-text');
@@ -11580,6 +11609,10 @@ function normalizarTemasVinculados(nodo) {
                 try {
                     const parsed = JSON.parse(e.target.result);
                     if (parsed.sys && parsed.ley && parsed.plan && parsed.test) {
+if (parsed.fechaBackup) {
+        localStorage.setItem('c1_last_backup_date', parsed.fechaBackup);
+    }
+    actualizarTextoBackup();
                         appState.syllabus = parsed.sys;
                         appState.leyes = parsed.ley;
                         appState.planificacion = parsed.plan;
@@ -11731,66 +11764,132 @@ function normalizarTemasVinculados(nodo) {
 
         let rutinaSemanalState = JSON.parse(localStorage.getItem('c1_rutina_semanal')) || DEFAULT_RUTINA_SEMANAL;
 
-        function renderRutinaSemanal() {
-            const container = document.getElementById('grid-rutina-semanal');
-            if (!container) return;
-            container.innerHTML = '';
+        let draggedRutinaData = null;
 
-            const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-            dias.forEach((dia, diaIdx) => {
-                const dataDia = rutinaSemanalState[dia];
-                const esDescanso = (typeof dataDia === 'object' && !Array.isArray(dataDia)) 
-                    ? dataDia.descanso 
-                    : (dia === "Domingo" && Array.isArray(dataDia) && dataDia.some(m => m.toLowerCase().includes('descanso')));
-                const materias = (typeof dataDia === 'object' && !Array.isArray(dataDia)) 
-                    ? (dataDia.materias || []) 
-                    : (Array.isArray(dataDia) ? dataDia : []);
-
-                const isFinde = (dia === "Sábado" || dia === "Domingo");
-                let headerColor = isFinde ? "bg-amber-50 text-amber-800 border-amber-200" : "bg-indigo-50 text-indigo-800 border-indigo-200";
-                let cardOpacity = esDescanso ? "opacity-60 bg-slate-50/60" : "bg-white";
-
-                const card = document.createElement('div');
-                card.className = `${cardOpacity} border border-slate-150 rounded-2xl shadow-xs overflow-hidden flex flex-col justify-between transition-all`;
-                card.innerHTML = `
-                    <div class="p-3.5 border-b flex justify-between items-center ${headerColor}">
-                        <div class="flex items-center gap-2">
-                            <span class="text-xs font-black uppercase tracking-wider">${dia}</span>
-                            <button type="button" onclick="toggleDescansoRutina('${dia}')" class="text-[8px] font-extrabold uppercase py-0.5 px-1.5 rounded-md border transition-all ${esDescanso ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-white/80 hover:bg-white text-slate-500 border-slate-200'}">
-                                ${esDescanso ? '🛌 Descanso' : '⚡ Lectivo'}
-                            </button>
-                        </div>
-                        <span class="text-[9px] font-extrabold opacity-75 font-mono bg-white/70 py-0.5 px-2 rounded-md border border-slate-200/50">${materias.length} bloques</span>
-                    </div>
-                    <div class="p-3.5 space-y-3 flex-1 flex flex-col justify-between">
-                        <div id="lista-rutina-dia-${diaIdx}" class="space-y-1.5 min-h-[60px]">
-                            ${esDescanso 
-                                ? '<div class="text-center py-5 text-slate-400 text-xs font-bold italic"><i class="fa-solid fa-bed text-base block mb-1 opacity-60"></i>Día programado de descanso</div>'
-                                : (materias.length === 0 
-                                    ? '<p class="text-[10px] text-slate-400 italic py-2">Sin materias asignadas para este día.</p>' 
-                                    : materias.map((mat, mIdx) => `
-                                        <div class="flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 text-xs text-slate-700 font-semibold group transition-all">
-                                            <span class="truncate pr-1"><i class="fa-solid fa-angle-right text-[9px] text-indigo-500 mr-1.5"></i>${mat}</span>
-                                            <button type="button" onclick="eliminarMateriaRutina('${dia}',${mIdx})" class="text-slate-300 hover:text-rose-600 text-xs ml-1 shrink-0 transition-colors">
-                                                <i class="fa-solid fa-xmark"></i>
-                                            </button>
-                                        </div>
-                                    `).join(''))
-                            }
-                        </div>
-                        ${!esDescanso ? `
-                        <div class="pt-2 border-t border-slate-100 flex gap-1.5">
-                            <input type="text" id="input-rutina-dia-${diaIdx}" placeholder="Añadir materia..." class="w-full bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors" onkeydown="if(event.key==='Enter') agregarMateriaRutina('${dia}',${diaIdx})">
-                            <button type="button" onclick="agregarMateriaRutina('${dia}',${diaIdx})" class="h-8 w-8 bg-indigo-50 hover:bg-indigo-100 border border-indigo-150 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 transition-all shadow-xs">
-                                <i class="fa-solid fa-plus text-xs"></i>
-                            </button>
-                        </div>
-                        ` : '<div class="pt-2 border-t border-slate-100 text-center"><button onclick="toggleDescansoRutina(\'' + dia + '\')" class="text-[9px] font-bold text-indigo-600 hover:underline">Convertir a día lectivo</button></div>'}
-                    </div>
-                `;
-                container.appendChild(card);
-            });
+        function onRutinaDragStart(e, dia, mIdx) {
+            draggedRutinaData = { dia, mIdx };
+            e.dataTransfer.setData('text/plain', `${dia}-${mIdx}`);
+            e.dataTransfer.effectAllowed = (e.ctrlKey || e.altKey) ? 'copy' : 'copyMove';
+            e.target.classList.add('opacity-40');
         }
+
+        function onRutinaDragEnd(e) {
+            e.target.classList.remove('opacity-40');
+            document.querySelectorAll('.rutina-drop-zone').forEach(el => el.classList.remove('bg-indigo-50/50', 'ring-2', 'ring-indigo-300'));
+        }
+
+        function onRutinaDragOver(e) {
+            e.preventDefault();
+            const esCopia = (e.ctrlKey || e.altKey);
+            e.dataTransfer.dropEffect = esCopia ? 'copy' : 'move';
+            e.currentTarget.classList.add('bg-indigo-50/50', 'ring-2', 'ring-indigo-300');
+        }
+
+        function onRutinaDragLeave(e) {
+            e.currentTarget.classList.remove('bg-indigo-50/50', 'ring-2', 'ring-indigo-300');
+        }
+
+        function onRutinaDrop(e, targetDia) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('bg-indigo-50/50', 'ring-2', 'ring-indigo-300');
+            if (!draggedRutinaData) return;
+
+            const { dia: origenDia, mIdx: origenIdx } = draggedRutinaData;
+            const esCopia = (e.ctrlKey || e.altKey);
+
+            normalizarDiaRutina(origenDia);
+            normalizarDiaRutina(targetDia);
+
+            if (esCopia) {
+                // MODO DUPLICAR: clonamos la materia sin borrarla del día original
+                const materiaOriginal = rutinaSemanalState[origenDia].materias[origenIdx];
+                if (materiaOriginal) {
+                    rutinaSemanalState[targetDia].materias.push(materiaOriginal);
+                    localStorage.setItem('c1_rutina_semanal', JSON.stringify(rutinaSemanalState));
+                    renderRutinaSemanal();
+                    showToast("Rutina", `Materia duplicada a ${targetDia}.`);
+                }
+            } else {
+                // MODO MOVER: solo si el día de destino es distinto
+                if (origenDia === targetDia) return;
+                const materia = rutinaSemanalState[origenDia].materias.splice(origenIdx, 1)[0];
+                if (materia) {
+                    rutinaSemanalState[targetDia].materias.push(materia);
+                    localStorage.setItem('c1_rutina_semanal', JSON.stringify(rutinaSemanalState));
+                    renderRutinaSemanal();
+                    showToast("Rutina", `Materia movida a ${targetDia}.`);
+                }
+            }
+
+            draggedRutinaData = null;
+        }
+     function renderRutinaSemanal() {
+         const container = document.getElementById('grid-rutina-semanal');
+         if (!container) return;
+         container.innerHTML = '';
+
+         const dias = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+         dias.forEach((dia, diaIdx) => {
+             const dataDia = rutinaSemanalState[dia];
+             const esDescanso = (typeof dataDia === 'object' && !Array.isArray(dataDia)) 
+                 ? dataDia.descanso 
+                 : (dia === "Domingo" && Array.isArray(dataDia) && dataDia.some(m => m.toLowerCase().includes('descanso')));
+             const materias = (typeof dataDia === 'object' && !Array.isArray(dataDia)) 
+                 ? (dataDia.materias || []) 
+                 : (Array.isArray(dataDia) ? dataDia : []);
+
+             const isFinde = (dia === "Sábado" || dia === "Domingo");
+             let headerColor = isFinde ? "bg-amber-50 text-amber-800 border-amber-200" : "bg-indigo-50 text-indigo-800 border-indigo-200";
+             let cardOpacity = esDescanso ? "opacity-60 bg-slate-50/60" : "bg-white";
+
+             const card = document.createElement('div');
+             card.className = `${cardOpacity} border border-slate-150 rounded-2xl shadow-xs overflow-hidden flex flex-col justify-between transition-all rutina-drop-zone`;
+             card.setAttribute("ondragover", "onRutinaDragOver(event)");
+             card.setAttribute("ondragleave", "onRutinaDragLeave(event)");
+             card.setAttribute("ondrop", `onRutinaDrop(event, '${dia}')`);
+
+             card.innerHTML = `
+                 <div class="p-3.5 border-b flex justify-between items-center ${headerColor}">
+                     <div class="flex items-center gap-2">
+                         <span class="text-xs font-black uppercase tracking-wider">${dia}</span>
+                         <button type="button" onclick="toggleDescansoRutina('${dia}')" class="text-[8px] font-extrabold uppercase py-0.5 px-1.5 rounded-md border transition-all ${esDescanso ? 'bg-amber-100 text-amber-800 border-amber-300' : 'bg-white/80 hover:bg-white text-slate-500 border-slate-200'}">
+                             ${esDescanso ? '🛌 Descanso' : '⚡ Lectivo'}
+                         </button>
+                     </div>
+                     <span class="text-[9px] font-extrabold opacity-75 font-mono bg-white/70 py-0.5 px-2 rounded-md border border-slate-200/50">${materias.length} bloques</span>
+                 </div>
+                 <div class="p-3.5 space-y-3 flex-1 flex flex-col justify-between">
+                     <div id="lista-rutina-dia-${diaIdx}" class="space-y-1.5 min-h-[60px]">
+                         ${esDescanso 
+                             ? '<div class="text-center py-5 text-slate-400 text-xs font-bold italic"><i class="fa-solid fa-bed text-base block mb-1 opacity-60"></i>Día programado de descanso</div>'
+                             : (materias.length === 0 
+                                 ? '<p class="text-[10px] text-slate-400 italic py-2">Sin materias asignadas para este día.</p>' 
+                                 : materias.map((mat, mIdx) => `
+                                     <div draggable="true"
+                                          ondragstart="onRutinaDragStart(event, '${dia}',${mIdx})"
+                                          ondragend="onRutinaDragEnd(event)"
+                                          class="flex items-center justify-between p-2 rounded-xl bg-slate-50 hover:bg-slate-100/80 border border-slate-100 text-xs text-slate-700 font-semibold group transition-all cursor-grab active:cursor-grabbing">
+                                         <span class="truncate pr-1"><i class="fa-solid fa-grip-vertical text-[9px] text-slate-300 group-hover:text-indigo-500 mr-1.5"></i>${mat}</span>
+                                         <button type="button" onclick="eliminarMateriaRutina('${dia}',${mIdx})" class="text-slate-300 hover:text-rose-600 text-xs ml-1 shrink-0 transition-colors">
+                                             <i class="fa-solid fa-xmark"></i>
+                                         </button>
+                                     </div>
+                                 `).join(''))
+                         }
+                     </div>
+                     ${!esDescanso ? `
+                     <div class="pt-2 border-t border-slate-100 flex gap-1.5">
+                         <input type="text" id="input-rutina-dia-${diaIdx}" placeholder="Añadir materia..." class="w-full bg-slate-50 border border-slate-200 focus:outline-none focus:border-indigo-500 px-2.5 py-1.5 rounded-xl text-xs font-medium transition-colors" onkeydown="if(event.key==='Enter') agregarMateriaRutina('${dia}',${diaIdx})">
+                         <button type="button" onclick="agregarMateriaRutina('${dia}',${diaIdx})" class="h-8 w-8 bg-indigo-50 hover:bg-indigo-100 border border-indigo-150 text-indigo-600 rounded-xl flex items-center justify-center shrink-0 transition-all shadow-xs">
+                             <i class="fa-solid fa-plus text-xs"></i>
+                         </button>
+                     </div>
+                     ` : '<div class="pt-2 border-t border-slate-100 text-center"><button onclick="toggleDescansoRutina(\'' + dia + '\')" class="text-[9px] font-bold text-indigo-600 hover:underline">Convertir a día lectivo</button></div>'}
+                 </div>
+             `;
+             container.appendChild(card);
+         });
+     }
 
         function normalizarDiaRutina(dia) {
             if (!rutinaSemanalState[dia]) {
@@ -12169,6 +12268,293 @@ function normalizarTemasVinculados(nodo) {
             flashcardIndexActual = 0;
             renderFlashcardActual();
             showToast("Repaso Flash", "Fichas barajadas.");
+        }
+// ==========================================
+        // EVOLUCIÓN DETALLADA POR TEMA / LEY / TEST
+        // ==========================================
+        function poblarSelectorEvolucionMaterias() {
+            const select = document.getElementById('select-evolucion-materia');
+            if (!select) return;
+            const valorPrevio = select.value;
+            select.innerHTML = '';
+
+            const grpOficial = document.createElement('optgroup');
+            grpOficial.label = "--- PRUEBAS OFICIALES GLOBALES ---";
+            grpOficial.innerHTML = `
+                <option value="OFICIAL-70">Examen Oficial Teórico AGE (Parte I - 70 Q)</option>
+                <option value="OFICIAL-COMPLETO">Examen Oficial Completo AGE (P1 + P2)</option>
+                <option value="OFICIAL-SUPUESTO">Supuesto Práctico Oficial AGE (P2)</option>
+            `;
+            select.appendChild(grpOficial);
+
+            const grpTemas = document.createElement('optgroup');
+            grpTemas.label = "--- TEMAS OFICIALES ---";
+            appState.syllabus.forEach(b => {
+                b.temas.forEach(t => {
+                    const opt = document.createElement('option');
+                    opt.value = `T-${b.numero}-${t.numero}`;
+                    opt.innerText = `Bloque ${b.numero} - T.${t.numero}: ${t.titulo.substring(0, 42)}...`;
+                    grpTemas.appendChild(opt);
+                });
+            });
+            select.appendChild(grpTemas);
+
+            if (appState.leyes && appState.leyes.length > 0) {
+                const grpLeyes = document.createElement('optgroup');
+                grpLeyes.label = "--- LEYES Y NORMATIVA ---";
+                appState.leyes.forEach(l => {
+                    const opt = document.createElement('option');
+                    opt.value = l.id;
+                    opt.innerText = l.texto.substring(0, 50);
+                    grpLeyes.appendChild(opt);
+                });
+                select.appendChild(grpLeyes);
+            }
+
+            if (valorPrevio && select.querySelector(`option[value="${valorPrevio}"]`)) {
+                select.value = valorPrevio;
+            }
+        }
+
+        function obtenerIntentosPorMateria(materiaClave) {
+            return (appState.tests || []).filter(t => {
+                if (materiaClave === 'OFICIAL-70') return t.type === 'oficial_teorico';
+                if (materiaClave === 'OFICIAL-COMPLETO') return t.type === 'oficial_completo';
+                if (materiaClave === 'OFICIAL-SUPUESTO') return t.type === 'supuesto_oficial';
+
+                if (t.type === 'parcial') {
+                    const ref = (t.detalles || '').split('|')[0].replace('Ref:', '').trim();
+                    const refCorta = materiaClave.replace(/^T-/, '');
+                    return ref === materiaClave || ref === refCorta;
+                }
+                return false;
+            }).sort((a,b) => parseDateLocal(a.date) - parseDateLocal(b.date));
+        }
+
+        function actualizarVistaEvolucionTest() {
+            poblarSelectorEvolucionMaterias();
+            const select = document.getElementById('select-evolucion-materia');
+            if (!select) return;
+            const clave = select.value;
+            const intentos = obtenerIntentosPorMateria(clave);
+
+            const esTeorico70 = (clave === 'OFICIAL-70');
+            const esCompleto = (clave === 'OFICIAL-COMPLETO');
+            const sufijo = (esTeorico70 || esCompleto) ? ' PT' : '%';
+
+            const total = intentos.length;
+            document.getElementById('evo-kpi-intentos').innerText = total;
+
+            if (total === 0) {
+                document.getElementById('evo-kpi-ultima').innerText = `0.0${sufijo}`;
+                document.getElementById('evo-kpi-media').innerText = `0.0${sufijo}`;
+                document.getElementById('evo-kpi-maxima').innerText = `0.0${sufijo}`;
+                document.getElementById('evo-kpi-tendencia').innerText = 'Sin registros';
+                document.getElementById('evo-kpi-tendencia').className = 'text-xs font-black font-mono block mt-1 text-slate-400';
+            } else {
+                const notas = intentos.map(i => i.notaGlobal);
+                const ultima = notas[notas.length - 1];
+                const maxima = Math.max(...notas);
+                const media = (notas.reduce((acc, n) => acc + n, 0) / total).toFixed(1);
+
+                document.getElementById('evo-kpi-ultima').innerText = `${ultima.toFixed(1)}${sufijo}`;
+                document.getElementById('evo-kpi-media').innerText = `${media}${sufijo}`;
+                document.getElementById('evo-kpi-maxima').innerText = `${maxima.toFixed(1)}${sufijo}`;
+
+                const tendenciaEl = document.getElementById('evo-kpi-tendencia');
+                if (total === 1) {
+                    tendenciaEl.innerText = 'Primer intento';
+                    tendenciaEl.className = 'text-xs font-black font-mono block mt-1 text-indigo-600';
+                } else {
+                    const anterior = notas[notas.length - 2];
+                    const diff = ultima - anterior;
+                    if (diff > 0) {
+                        tendenciaEl.innerText = `▲ +${diff.toFixed(1)}${sufijo} Mejora`;
+                        tendenciaEl.className = 'text-xs font-black font-mono block mt-1 text-emerald-600';
+                    } else if (diff < 0) {
+                        tendenciaEl.innerText = `▼ ${diff.toFixed(1)}${sufijo} Bajada`;
+                        tendenciaEl.className = 'text-xs font-black font-mono block mt-1 text-rose-500';
+                    } else {
+                        tendenciaEl.innerText = '= Estable';
+                        tendenciaEl.className = 'text-xs font-black font-mono block mt-1 text-slate-500';
+                    }
+                }
+            }
+
+            const tbody = document.getElementById('table-evolucion-body');
+            tbody.innerHTML = '';
+            if (intentos.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 font-semibold italic">No hay intentos registrados para esta materia</td></tr>`;
+            } else {
+                [...intentos].reverse().forEach(att => {
+                    const tr = document.createElement('tr');
+                    const c = att.correct || 0;
+                    const e = att.errors || 0;
+                    const b = (att.totalQ || 20) - (c + e);
+                    const neto = (c - e/3).toFixed(2);
+                    const aprobado = esTeorico70 ? (att.notaGlobal >= 25) : (att.notaGlobal >= 50);
+
+                    tr.className = "hover:bg-slate-50 border-b border-slate-100";
+                    tr.innerHTML = `
+                        <td class="py-2 px-3 font-mono font-bold">${att.date}</td>
+                        <td class="py-2 px-3 font-mono">${att.totalQ || 20} Q</td>
+                        <td class="py-2 px-3 font-mono"><span class="text-emerald-600 font-bold">${c} A</span> / <span class="text-rose-500 font-bold">${e} F</span> / <span class="text-slate-400">${b} B</span></td>
+                        <td class="py-2 px-3 font-mono font-bold">${neto} Neto</td>
+                        <td class="py-2 px-3 text-center font-mono font-black ${aprobado ? 'text-emerald-700' : 'text-rose-600'}">
+                            ${att.notaGlobal.toFixed(2)}${sufijo} ${aprobado ? '✓' : '✗'}
+                        </td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            }
+
+            renderGraficoEvolucion(intentos, esTeorico70, esCompleto);
+        }
+
+        function renderGraficoEvolucion(intentos, esTeorico70, esCompleto) {
+            const svg = document.getElementById('evolucion-svg-chart');
+            const tooltip = document.getElementById('chart-tooltip-evo');
+            if (!svg) return;
+            svg.innerHTML = '';
+
+            const W = 760;
+            const H = 320;
+            const padL = 60;
+            const padR = 30;
+            const padT = 20;
+            const padB = 40;
+            const chartW = W - padL - padR;
+            const chartH = H - padT - padB;
+
+            const maxVal = esTeorico70 ? 50 : 100;
+            const umbralAprobado = esTeorico70 ? 25 : 50;
+            const sufijo = esTeorico70 ? ' PT' : '%';
+
+            const gridValues = esTeorico70 ? [0, 10, 20, 25, 35, 50] : [0, 25, 50, 75, 100];
+            gridValues.forEach(val => {
+                const y = padT + chartH - (val * (chartH / maxVal));
+                const esCorte = (val === umbralAprobado);
+
+                const line = document.createElementNS("http://www.w3.org/2000/svg", "line");
+                line.setAttribute("x1", padL);
+                line.setAttribute("y1", y);
+                line.setAttribute("x2", W - padR);
+                line.setAttribute("y2", y);
+                line.setAttribute("stroke", esCorte ? "#f59e0b" : "#f1f5f9");
+                line.setAttribute("stroke-width", esCorte ? "1.5" : "1");
+                if (esCorte) line.setAttribute("stroke-dasharray", "4 3");
+                svg.appendChild(line);
+
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", padL - 10);
+                text.setAttribute("y", y + 3.5);
+                text.setAttribute("fill", esCorte ? "#d97706" : "#94a3b8");
+                text.setAttribute("font-size", "9.5");
+                text.setAttribute("font-weight", esCorte ? "800" : "600");
+                text.setAttribute("font-family", "monospace");
+                text.setAttribute("text-anchor", "end");
+                text.textContent = `${val}${sufijo}`;
+                svg.appendChild(text);
+            });
+
+            if (intentos.length === 0) {
+                const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                text.setAttribute("x", W / 2);
+                text.setAttribute("y", H / 2);
+                text.setAttribute("fill", "#94a3b8");
+                text.setAttribute("font-size", "12");
+                text.setAttribute("font-weight", "600");
+                text.setAttribute("text-anchor", "middle");
+                text.textContent = "Registra tests asociados a esta materia para visualizar tu evolución.";
+                svg.appendChild(text);
+                return;
+            }
+
+            const total = intentos.length;
+            const xStride = total > 1 ? chartW / (total - 1) : chartW / 2;
+            const startX = total === 1 ? padL + chartW / 2 : padL;
+
+            const coords = intentos.map((att, idx) => {
+                const x = total === 1 ? startX : padL + (idx * xStride);
+                const y = padT + chartH - (att.notaGlobal * (chartH / maxVal));
+                return { x, y, val: att.notaGlobal, date: att.date, att };
+            });
+
+            if (coords.length > 1) {
+                const lineD = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.x} ${c.y}`).join(' ');
+                const path = document.createElementNS("http://www.w3.org/2000/svg", "path");
+                path.setAttribute("d", lineD);
+                path.setAttribute("fill", "none");
+                path.setAttribute("stroke", "#6366f1");
+                path.setAttribute("stroke-width", "2.5");
+                path.setAttribute("stroke-linecap", "round");
+                path.setAttribute("stroke-linejoin", "round");
+                svg.appendChild(path);
+            }
+
+            coords.forEach(p => {
+                const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
+
+                const circle = document.createElementNS("http://www.w3.org/2000/svg", "circle");
+                circle.setAttribute("cx", p.x);
+                circle.setAttribute("cy", p.y);
+                circle.setAttribute("r", "5");
+                circle.setAttribute("fill", "#ffffff");
+                circle.setAttribute("stroke", "#6366f1");
+                circle.setAttribute("stroke-width", "2.5");
+                circle.style.cursor = "pointer";
+
+                const label = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                label.setAttribute("x", p.x);
+                label.setAttribute("y", p.y - 8);
+                label.setAttribute("fill", p.val >= umbralAprobado ? "#10b981" : "#e11d48");
+                label.setAttribute("font-size", "9.5");
+                label.setAttribute("font-weight", "800");
+                label.setAttribute("font-family", "monospace");
+                label.setAttribute("text-anchor", "middle");
+                label.textContent = `${p.val.toFixed(1)}${sufijo}`;
+
+                const xText = document.createElementNS("http://www.w3.org/2000/svg", "text");
+                xText.setAttribute("x", p.x);
+                xText.setAttribute("y", H - padB + 18);
+                xText.setAttribute("fill", "#64748b");
+                xText.setAttribute("font-size", "9");
+                xText.setAttribute("font-weight", "600");
+                xText.setAttribute("font-family", "monospace");
+                xText.setAttribute("text-anchor", "middle");
+                xText.textContent = p.date ? p.date.substring(5) : '';
+                svg.appendChild(xText);
+
+                group.onmouseenter = () => {
+                    circle.setAttribute("r", "7");
+                    if (tooltip) {
+                        const rect = svg.getBoundingClientRect();
+                        const posX = (p.x / W) * rect.width;
+                        const posY = (p.y / H) * rect.height;
+                        const pasa = p.val >= umbralAprobado;
+
+                        tooltip.innerHTML = `
+                            <div class="font-bold text-slate-200 border-b border-slate-700 pb-0.5 mb-1 flex justify-between gap-2">
+                                <span>${p.date}</span>
+                                <span class="${pasa ? 'text-emerald-400' : 'text-rose-400'} font-black">${pasa ? 'APROBADO' : 'INSUFICIENTE'}</span>
+                            </div>
+                            <div>Calificación: <strong>${p.val.toFixed(2)}${sufijo}</strong></div>
+                            <div class="text-[9px] text-slate-400">${p.att.detalles || ''}</div>
+                        `;
+                        tooltip.style.left = `${Math.min(rect.width - 160, Math.max(10, posX - 60))}px`;
+                        tooltip.style.top = `${Math.max(10, posY - 70)}px`;
+                        tooltip.classList.remove('hidden');
+                    }
+                };
+                group.onmouseleave = () => {
+                    circle.setAttribute("r", "5");
+                    if (tooltip) tooltip.classList.add('hidden');
+                };
+
+                group.appendChild(circle);
+                group.appendChild(label);
+                svg.appendChild(group);
+            });
         }
     </script>
 </body>
