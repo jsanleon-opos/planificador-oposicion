@@ -6196,7 +6196,17 @@ function toggleDarkMode() {
 
         }
 
-
+function obtenerNotaUltimoTestBloque(numBloque) {
+    const claveRef = `B-${numBloque}`;
+    const testsDelBloque = (appState.tests || []).filter(t => {
+        if (!t.detalles) return false;
+        const ref = t.detalles.split('|')[0].replace('Ref:', '').trim();
+        return ref === claveRef;
+    });
+    if (testsDelBloque.length === 0) return null;
+    testsDelBloque.sort((a, b) => parseDateLocal(a.date) - parseDateLocal(b.date));
+    return testsDelBloque[testsDelBloque.length - 1].notaGlobal;
+}
 
         function obtenerEstadoEstudio(itemId) {
             let plans = appState.planificacion.filter(p => p.id === itemId && p.completed === true && p.date !== 'inbox');
@@ -7764,12 +7774,19 @@ function toggleTemaSubsecciones(bIdx, tIdx) {
 
                 `;
 
+                const notaBloque = obtenerNotaUltimoTestBloque(bloque.numero);
+                let semaforoBloque = "";
+                if (notaBloque === null || notaBloque < 70) {
+                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-bold bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque === null ? 'Sin test' : notaBloque.toFixed(1) + '% (<70%)'}"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>${notaBloque === null ? 'Sin test' : notaBloque.toFixed(0) + '%'}</span>`;
+                } else if (notaBloque <= 85) {
+                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-black bg-amber-50 text-amber-700 border border-amber-300 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque.toFixed(1)}% (70-85%)"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>${notaBloque.toFixed(0)}%</span>`;
+                } else {
+                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-black bg-emerald-50 text-emerald-700 border border-emerald-300 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque.toFixed(1)}% (>85%)"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>${notaBloque.toFixed(0)}%</span>`;
+                }
+
                 const blockSubTextHtml = bloque.numero === 7 
-
-                    ? `BLOQUE ${bloque.numero} ${camFlagSvg}` 
-
-                    : `BLOQUE ${bloque.numero}`;
-
+                    ? `BLOQUE ${bloque.numero} ${camFlagSvg} ${semaforoBloque}` 
+                    : `BLOQUE ${bloque.numero} ${semaforoBloque}`;
 
 
                 const accordionCard = document.createElement('div');
@@ -9339,7 +9356,16 @@ function normalizarTemasVinculados(nodo) {
 
     select.innerHTML = '';
 
-
+// 0. Grupo Bloques de Temas
+    const grpBloques = document.createElement('optgroup');
+    grpBloques.label = "--- BLOQUES OFICIALES ---";
+    appState.syllabus.forEach(block => {
+        const opt = document.createElement('option');
+        opt.value = `B-${block.numero}`;
+        opt.innerText = `Bloque ${block.numero}: ${block.bloque}`;
+        grpBloques.appendChild(opt);
+    });
+    select.appendChild(grpBloques);
 
     // 1. Grupo Temas Oficiales (Solo el tema principal, sin epígrafes ni adicionales)
 
@@ -9739,8 +9765,8 @@ function normalizarTemasVinculados(nodo) {
 
                 finalRecord.correct = correct; finalRecord.errors = errors; finalRecord.totalQ = total;
 
-                finalRecord.detalles = `Ref: ${themeId.replace('T-', '')} | Aciertos: ${correct}, Fallos: ${errors}`;
-
+const refFinal = themeId.startsWith('B-') ? themeId : themeId.replace('T-', '');
+finalRecord.detalles = `Ref: ${refFinal} | Aciertos: ${correct}, Fallos: ${errors}`;
             } else if (type === 'supuesto_oficial') {
 
                 const correct = parseInt(document.getElementById('reg-test-correct').value, 10);
@@ -12298,6 +12324,17 @@ if (parsed.fechaBackup) {
             const valorPrevio = select.value;
             select.innerHTML = '';
 
+// Grupo Bloques Oficiales
+    const grpBloques = document.createElement('optgroup');
+    grpBloques.label = "--- BLOQUES DE TEMAS ---";
+    (appState.syllabus || []).forEach(b => {
+        const opt = document.createElement('option');
+        opt.value = `B-${b.numero}`;
+        opt.innerText = `Bloque ${b.numero}: ${b.bloque}`;
+        grpBloques.appendChild(opt);
+    });
+    select.appendChild(grpBloques);
+
             const grpOficial = document.createElement('optgroup');
             grpOficial.label = "--- PRUEBAS OFICIALES GLOBALES ---";
             grpOficial.innerHTML = `
@@ -12345,7 +12382,7 @@ if (parsed.fechaBackup) {
                 if (t.type === 'parcial') {
                     const ref = (t.detalles || '').split('|')[0].replace('Ref:', '').trim();
                     const refCorta = materiaClave.replace(/^T-/, '');
-                    return ref === materiaClave || ref === refCorta;
+                  return ref === materiaClave || ref === refCorta || ref === `B-${refCorta}`;
                 }
                 return false;
             }).sort((a,b) => parseDateLocal(a.date) - parseDateLocal(b.date));
