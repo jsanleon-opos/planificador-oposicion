@@ -256,11 +256,11 @@
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-extrabold text-xs tracking-tight text-slate-900 leading-none">OPOSICIONES C1</h1>
-                    <span class="text-[8px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200 px-1 py-0.2 rounded font-mono">v3.3</span>
+                    <span class="text-[8px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200 px-1 py-0.2 rounded font-mono">v3.5</span>
                 </div>
                 <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1">Planificador Multi-Destino</p>
                 <p class="text-[8px] text-slate-400/90 font-medium tracking-tight mt-0.5 truncate">
-                    Por <strong class="text-slate-600 dark:text-slate-300">Julio Sánchez</strong> & <strong class="text-indigo-600 dark:text-indigo-400">Gemini</strong>
+                    Por <strong class="text-slate-600 dark:text-slate-300">Julio Sánchez León</strong> & <strong class="text-indigo-600 dark:text-indigo-400">Gemini</strong>
                 </p>
             </div>
         </div>
@@ -513,8 +513,7 @@
 
 
 
-        <div class="p-4 md:p-6 w-full space-y-8">
-
+<div class="p-4 md:p-6 w-full space-y-8">
 
 
             <!-- SECTION 1: DASHBOARD -->
@@ -2261,7 +2260,7 @@
 
                     </div>
 
-                    <div id="inbox-container" class="hidden p-4 border-t border-slate-100 planner-drop-zone transition-colors" ondragover="onDayDragOver(event)" ondragleave="onDayDragLeave(event)" ondrop="onDayDrop(event, 'inbox')">
+                    <div id="inbox-container" class="hidden p-4 border-t border-slate-100">
 
                         <div id="inbox-elements-list" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3"></div>
 
@@ -2876,13 +2875,14 @@
 
 
 
-                <<div class="space-y-1">
+                <div class="space-y-1">
                     <label class="text-[9px] font-extrabold text-slate-400 uppercase tracking-wider block">O seleccionar fecha exacta</label>
-                    <input type="date" id="repaso-modal-target-date" onchange="actualizarResumenCargaDiaFechador(this.value)" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:outline-none p-2 rounded-xl text-xs font-bold text-slate-800">
+                    <input type="date" id="repaso-modal-target-date" onchange="verificarTareasDiaRepaso(this.value)" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:outline-none p-2 rounded-xl text-xs font-bold text-slate-800">
                 </div>
 
-                <!-- Resumen de carga del día en el modal de repasos -->
-                <div id="fechador-dia-resumen-box" class="p-2.5 rounded-xl border border-slate-200 bg-slate-50 space-y-2 text-xs"></div>
+                <!-- Ventana / Aviso de tareas planeadas para ese día -->
+                <div id="aviso-carga-repaso" class="p-2.5 rounded-xl border text-xs transition-all"></div>
+
 
 
                 <!-- Vuelta de estudio a asignar -->
@@ -2949,13 +2949,8 @@
 
                     <label class="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase block">Seleccionar Día</label>
 
-                    <div class="space-y-1">
-                    <label class="text-[10px] font-extrabold tracking-wider text-slate-400 uppercase block">Seleccionar Día</label>
-                    <input type="date" id="fechador-assigned-date" onchange="actualizarResumenCargaDiaFechador(this.value)" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:outline-none p-2 rounded-xl text-xs font-bold">
-                </div>
-<!-- Panel dinámico de carga y balance del día seleccionado -->
-                <div id="fechador-dia-resumen-box" class="p-2.5 rounded-xl border border-slate-200 bg-slate-50 space-y-2 text-xs">
-                    <!-- Se puebla dinámicamente mediante actualizarResumenCargaDiaFechador() -->
+                    <input type="date" id="fechador-assigned-date" class="w-full bg-slate-50 border border-slate-200 focus:border-indigo-500 focus:outline-none p-2 rounded-xl text-xs font-bold">
+
                 </div>
 
                 <!-- Campo: Tipo de Estudio / Vuelta -->
@@ -9091,101 +9086,7 @@ function normalizarTemasVinculados(nodo) {
 
             return `<span class="text-[8.5px] border py-0.5 px-1.5 rounded-md font-mono ${colorClass}" title="Total de repasos completados"><i class="fa-solid fa-rotate-right text-[7px] mr-1"></i>${texto}</span>`;
 
-        } 
-function actualizarResumenCargaDiaFechador(fechaSeleccionada) {
-            const container = document.getElementById('fechador-dia-resumen-box');
-            if (!container) return;
-
-            if (!fechaSeleccionada) {
-                container.innerHTML = `<span class="text-[10px] text-slate-400 italic">Selecciona una fecha para ver la carga de tareas.</span>`;
-                return;
-            }
-
-            // 1. Obtener tareas agendadas para el día (excluyendo la bandeja de entrada)
-            const tareasDia = (appState.planificacion || []).filter(p => p.date === fechaSeleccionada);
-            const totalTareas = tareasDia.length;
-
-            // 2. Conteo por tipos de estudio/vuelta
-            const conteo = { lectura: 0, notebook: 0, tarjetas: 0, test: 0, otros: 0 };
-            let temasInformatica = 0;
-
-            tareasDia.forEach(t => {
-                const tipo = t.studyType || 'otros';
-                if (conteo.hasOwnProperty(tipo)) {
-                    conteo[tipo]++;
-                } else {
-                    conteo.otros++;
-                }
-
-                // Identificar si pertenece al Bloque 6 (Informática y Ofimática) o Bloque 7 tema 7
-                const esBloque6 = (t.id && t.id.startsWith('T-6-')) || (t.subtitle && t.subtitle.includes('Bloque 6'));
-                const esInformaticaCam = (t.id && t.id.startsWith('T-7-7')) || (t.subtitle && t.subtitle.includes('Informática Específica'));
-                const esOfimatica = /word|excel|access|outlook|informática|power bi|sharepoint|teams/i.test(`${t.name || ''} ${t.subtitle || ''}`);
-
-                if (esBloque6 || esInformaticaCam || esOfimatica) {
-                    temasInformatica++;
-                }
-            });
-
-            // 3. Evaluar regla de color según volumen de tareas (<= 4 Verde, > 4 Rojo)
-            const estiloAlertaCarga = totalTareas <= 4
-                ? 'bg-emerald-50 text-emerald-700 border-emerald-300'
-                : 'bg-rose-50 text-rose-700 border-rose-300 font-black';
-
-            // 4. Evaluar criterio de equilibrio pedagógico:
-            // Al menos 1 lectura nueva, al menos 1 repaso (notebook o tarjetas) y al menos 2 temas de informática
-            const cumpleLectura = conteo.lectura >= 1;
-            const cumpleRepaso = (conteo.notebook + conteo.tarjetas) >= 1;
-            const cumpleInformatica = temasInformatica >= 2;
-            const balanceOptimo = cumpleLectura && cumpleRepaso && cumpleInformatica;
-
-            const badgeBalance = balanceOptimo
-                ? `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-extrabold bg-emerald-100 text-emerald-800 border border-emerald-300"><i class="fa-solid fa-circle-check"></i> OK (Equilibrado)</span>`
-                : `<span class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[9px] font-bold bg-slate-200 text-slate-600 border border-slate-300"><i class="fa-solid fa-circle-info"></i> Incompleto</span>`;
-
-            // 5. Renderizado del panel
-            container.innerHTML = `
-                <div class="flex items-center justify-between border-b border-slate-200/80 pb-1.5">
-                    <span class="text-[10px] font-bold text-slate-600 uppercase">Carga del día:</span>
-                    <span class="text-[10px] font-mono px-2 py-0.5 rounded-md border ${estiloAlertaCarga}">
-                        ${totalTareas} ${totalTareas === 1 ? 'tarea agendada' : 'tareas agendadas'} ${totalTareas > 4 ? '⚠️ (Sobrecarga)' : '✓ (Adecuado)'}
-                    </span>
-                </div>
-
-                <div class="space-y-1">
-                    <div class="flex items-center justify-between text-[9px] text-slate-500 font-semibold">
-                        <span>Desglose por método:</span>
-                        <div class="flex items-center gap-1 font-mono">
-                            <span title="Lectura" class="px-1 py-0.5 rounded bg-blue-100 text-blue-700">📖 ${conteo.lectura}</span>
-                            <span title="Notebook" class="px-1 py-0.5 rounded bg-purple-100 text-purple-700">💻 ${conteo.notebook}</span>
-                            <span title="Tarjetas" class="px-1 py-0.5 rounded bg-amber-100 text-amber-700">🃏 ${conteo.tarjetas}</span>
-                            <span title="Test" class="px-1 py-0.5 rounded bg-emerald-100 text-emerald-700">📝 ${conteo.test}</span>
-                        </div>
-                    </div>
-
-                    <div class="flex items-center justify-between pt-1 border-t border-slate-200/60 text-[9px]">
-                        <span class="text-slate-600 font-bold">Balance de estudio:</span>
-                        ${badgeBalance}
-                    </div>
-
-                    <div class="text-[8px] space-y-0.5 pt-0.5 text-slate-500 font-medium">
-                        <div class="flex items-center justify-between">
-                            <span>• Lectura (mín. 1):</span>
-                            <span class="${cumpleLectura ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${conteo.lectura} / 1</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span>• Repaso Notebook/Tarjetas (mín. 1):</span>
-                            <span class="${cumpleRepaso ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${conteo.notebook + conteo.tarjetas} / 1</span>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <span>• Informática / Ofimática (mín. 2):</span>
-                            <span class="${cumpleInformatica ? 'text-emerald-600 font-bold' : 'text-slate-400'}">${temasInformatica} / 2</span>
-                        </div>
-                    </div>
-                </div>
-            `;
-        }       
-function mandarPlanificador(id, type, name, subtitle) {
+        }        function mandarPlanificador(id, type, name, subtitle) {
 
             let finalSubtitle = subtitle;
 
@@ -9251,7 +9152,7 @@ function mandarPlanificador(id, type, name, subtitle) {
 
             `;
 
-            actualizarResumenCargaDiaFechador(formatDateLocal(tomorrow));
+            
 
             document.getElementById('modal-date-picker-planif').style.display = 'flex';
 
@@ -10481,8 +10382,9 @@ function mandarPlanificador(id, type, name, subtitle) {
 
             if (modoVistaPlanificador === 'columnas') {
 
-                const gridCol = document.createElement('div');
-gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 pb-3 items-start select-none w-full";
+               const gridCol = document.createElement('div');
+
+                gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 pb-3 items-start select-none w-full";
 
 
 
@@ -10592,7 +10494,7 @@ gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols
 
 
 
-                        <div class="p-2.5 space-y-2 flex-1 overflow-y-auto max-h-[70vh]">
+                        <div class="p-2.5 space-y-2 flex-1 overflow-y-auto max-h-[460px]">
 
                             ${dayRowPlans.length === 0 
 
@@ -10891,41 +10793,63 @@ gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols
 
 
         function renderInbox() {
+
             const list = document.getElementById('inbox-elements-list');
+
             if (!list) return;
+
             list.innerHTML = '';
 
+
+
             const inboxPlans = appState.planificacion.filter(p => p.date === 'inbox');
+
             document.getElementById('inbox-badge-count').innerText = inboxPlans.length;
 
+
+
             if (inboxPlans.length === 0) {
-                list.innerHTML = `<p class="text-[10px] text-slate-400 italic py-2 col-span-full">Bandeja vacía. Haz doble clic en cualquier tema/ley o arrastra tareas aquí desde el calendario.</p>`;
+
+                list.innerHTML = `<p class="text-[10px] text-slate-400 italic py-2 col-span-full">Bandeja vacía. Haz doble clic en cualquier tema o ley para mandarlo aquí.</p>`;
+
                 return;
+
             }
 
+
+
             inboxPlans.forEach(p => {
+
                 const card = document.createElement('div');
-                card.draggable = true;
-                card.ondragstart = (e) => onTaskDragStart(e, p.id, 'inbox');
-                card.ondragend = onTaskDragEnd;
-                card.className = "p-3 rounded-xl border border-slate-200 bg-slate-50/70 hover:bg-white hover:border-slate-300 transition-all flex items-center justify-between cursor-grab active:cursor-grabbing shadow-2xs";
+
+                card.className = "p-3 rounded-xl border border-slate-150 bg-slate-50/50 hover:bg-slate-50 transition-all flex items-center justify-between";
 
                 card.innerHTML = `
+
                     <div class="min-w-0 flex-1 space-y-0.5 pr-2">
-                        <div class="flex items-center gap-1.5 flex-wrap">
-                            <i class="fa-solid fa-grip-vertical text-slate-300 text-[10px]"></i>
-                            <h5 class="text-xs font-bold text-slate-800 leading-snug truncate">${p.name}</h5>
-                        </div>
-                        <p class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest pl-3">${p.subtitle || ''}</p>
+
+                        <h5 class="text-xs font-bold text-slate-800 leading-snug truncate">${p.name}</h5>
+
+                        <p class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest">${p.subtitle || ''}</p>
+
                     </div>
+
                     <div class="flex items-center gap-1.5 shrink-0">
-                        <button onclick="asignarFechaDesdeInbox('${p.id}')" class="h-7 py-1 px-2.5 rounded-lg bg-indigo-50 border border-indigo-150 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold shadow-2xs">Asignar</button>
+
+                        <button onclick="asignarFechaDesdeInbox('${p.id}')" class="h-7 py-1 px-2.5 rounded-lg bg-indigo-50 border border-indigo-150 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold">Asignar</button>
+
                         <button onclick="borrarPlanificado('${p.id}', 'inbox')" class="text-slate-300 hover:text-rose-500 font-bold ml-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
+
                     </div>
+
                 `;
+
                 list.appendChild(card);
+
             });
+
         }
+
 
 
         function toggleInbox() {
@@ -10987,29 +10911,45 @@ gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols
 
 
         function abrirModalProgramarRepaso(item) {
+
             activeRepasoPlanItem = item;
+
             const descEl = document.getElementById('repaso-modal-desc');
+
             if (descEl) {
+
                 descEl.innerHTML = `Has completado <strong>"${item.name}"</strong>. Selecciona cuándo programar el siguiente repaso:`;
+
             }
+
+
 
             // Por defecto sugiere +7 días
+
             seleccionarDiasRepaso(7);
 
+
+
             // Sugiere el siguiente método en el ciclo
+
             const nextType = obtenerSiguienteTipoEstudio(item.id);
+
             const selectType = document.getElementById('repaso-modal-study-type');
+
             if (selectType) selectType.value = nextType;
 
-            // Actualiza la carga del día seleccionado al abrir el modal
-            const fechaActual = document.getElementById('repaso-modal-target-date')?.value;
-            if (fechaActual) actualizarResumenCargaDiaFechador(fechaActual);
+
 
             const modal = document.getElementById('modal-programar-repaso');
+
             if (modal) {
+
                 modal.classList.remove('hidden');
+
                 modal.style.display = 'flex';
+
             }
+
         }
 
 
@@ -11032,17 +10972,46 @@ gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols
 
 
 
+        function verificarTareasDiaRepaso(fechaStr) {
+            const aviso = document.getElementById('aviso-carga-repaso');
+            if (!aviso) return;
+            if (!fechaStr) {
+                aviso.className = "hidden";
+                return;
+            }
+
+            const total = (appState.planificacion || []).filter(p => p.date === fechaStr && !p.completed).length;
+
+            if (total >= 4) {
+                aviso.className = "p-2.5 rounded-xl border border-rose-300 bg-rose-50 text-rose-800 text-xs flex items-center justify-between font-bold animate-in fade-in";
+                aviso.innerHTML = `
+                    <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-triangle-exclamation text-rose-600 text-sm"></i>
+                        <span>Día con alta carga: ya tienes <strong>${total} tareas</strong> planeadas.</span>
+                    </span>
+                    <span class="text-[9px] bg-rose-200 text-rose-900 px-1.5 py-0.5 rounded font-mono font-black">Límite 4</span>
+                `;
+            } else {
+                aviso.className = "p-2 rounded-xl border border-emerald-200 bg-emerald-50 text-emerald-800 text-[11px] flex items-center justify-between font-medium";
+                aviso.innerHTML = `
+                    <span class="flex items-center gap-1.5">
+                        <i class="fa-solid fa-circle-check text-emerald-600"></i>
+                        <span>Tienes <strong>${total}</strong> de 4 tareas planeadas.</span>
+                    </span>
+                    <span class="text-[9px] bg-emerald-200 text-emerald-900 px-1.5 py-0.5 rounded font-mono font-bold">Disponible</span>
+                `;
+            }
+        }
+
         function seleccionarDiasRepaso(dias) {
             const hoy = new Date();
             hoy.setDate(hoy.getDate() + dias);
-            const fechaStr = formatDateLocal(hoy);
             const targetInput = document.getElementById('repaso-modal-target-date');
+            const fechaStr = formatDateLocal(hoy);
             if (targetInput) targetInput.value = fechaStr;
 
-            // Actualiza inmediatamente el cuadro de carga para el día del botón pulsado
-            actualizarResumenCargaDiaFechador(fechaStr);
+            verificarTareasDiaRepaso(fechaStr);
 
-            // Destacar botón seleccionado
             document.querySelectorAll('.btn-dias-repaso').forEach(btn => {
                 btn.className = "btn-dias-repaso py-2 rounded-xl border border-slate-200 bg-slate-50 hover:bg-indigo-50 hover:border-indigo-300 hover:text-indigo-700 text-xs font-bold transition-all text-slate-700 text-center";
             });
@@ -11051,7 +11020,6 @@ gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols
                 window.event.target.classList.add('bg-indigo-600', 'text-white', 'border-indigo-600', 'shadow-xs');
             }
         }
-
 
         function confirmarProgramacionRepaso() {
 
