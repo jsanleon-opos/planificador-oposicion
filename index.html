@@ -6208,6 +6208,15 @@ function obtenerNotaUltimoTestBloque(numBloque) {
     return testsDelBloque[testsDelBloque.length - 1].notaGlobal;
 }
 
+function contarTestsBloque(numBloque) {
+    const claveRef = `B-${numBloque}`;
+    return (appState.tests || []).filter(t => {
+        if (!t.detalles) return false;
+        const ref = t.detalles.split('|')[0].replace('Ref:', '').trim();
+        return ref === claveRef;
+    }).length;
+}
+
         function obtenerEstadoEstudio(itemId) {
             let plans = appState.planificacion.filter(p => p.id === itemId && p.completed === true && p.date !== 'inbox');
             
@@ -7775,13 +7784,16 @@ function toggleTemaSubsecciones(bIdx, tIdx) {
                 `;
 
                 const notaBloque = obtenerNotaUltimoTestBloque(bloque.numero);
+                const numTestsBloque = contarTestsBloque(bloque.numero);
+                const txtContador = numTestsBloque > 0 ? ` · ${numTestsBloque} ${numTestsBloque === 1 ? 'test' : 'tests'}` : '';
+
                 let semaforoBloque = "";
                 if (notaBloque === null || notaBloque < 70) {
-                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-bold bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque === null ? 'Sin test' : notaBloque.toFixed(1) + '% (<70%)'}"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>${notaBloque === null ? 'Sin test' : notaBloque.toFixed(0) + '%'}</span>`;
+                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-bold bg-slate-100 text-slate-500 border border-slate-200 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque === null ? 'Sin test realizados' : notaBloque.toFixed(1) + '% (<70%) | ' + numTestsBloque + ' realizados'}"><span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>${notaBloque === null ? 'Sin test' : notaBloque.toFixed(0) + '%' + txtContador}</span>`;
                 } else if (notaBloque <= 85) {
-                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-black bg-amber-50 text-amber-700 border border-amber-300 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque.toFixed(1)}% (70-85%)"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>${notaBloque.toFixed(0)}%</span>`;
+                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-black bg-amber-50 text-amber-700 border border-amber-300 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque.toFixed(1)}% (70-85%) | ${numTestsBloque} realizados"><span class="h-1.5 w-1.5 rounded-full bg-amber-500"></span>${notaBloque.toFixed(0)}%${txtContador}</span>`;
                 } else {
-                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-black bg-emerald-50 text-emerald-700 border border-emerald-300 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque.toFixed(1)}% (>85%)"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>${notaBloque.toFixed(0)}%</span>`;
+                    semaforoBloque = `<span class="inline-flex items-center gap-1 text-[8px] font-black bg-emerald-50 text-emerald-700 border border-emerald-300 px-1.5 py-0.5 rounded-full ml-1.5" title="${notaBloque.toFixed(1)}% (>85%) | ${numTestsBloque} realizados"><span class="h-1.5 w-1.5 rounded-full bg-emerald-500"></span>${notaBloque.toFixed(0)}%${txtContador}</span>`;
                 }
 
                 const blockSubTextHtml = bloque.numero === 7 
