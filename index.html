@@ -256,8 +256,8 @@
             <div class="min-w-0">
                 <div class="flex items-center gap-1.5">
                     <h1 class="font-extrabold text-xs tracking-tight text-slate-900 leading-none">OPOSICIONES C1</h1>
-                    <span class="text-[8px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200 px-1 py-0.2 rounded font-mono">v3.5</span>
-                </div>
+<!-- Actualizado -->
+<span class="text-[8px] font-black bg-indigo-50 text-indigo-700 border border-indigo-200 px-1 py-0.2 rounded font-mono">v3.6</span>                </div>
                 <p class="text-[9px] text-slate-400 font-bold uppercase tracking-wider mt-1">Planificador Multi-Destino</p>
                 <p class="text-[8px] text-slate-400/90 font-medium tracking-tight mt-0.5 truncate">
                     Por <strong class="text-slate-600 dark:text-slate-300">Julio Sánchez León</strong> & <strong class="text-indigo-600 dark:text-indigo-400">Gemini</strong>
@@ -2198,23 +2198,18 @@
 
                     <div class="flex items-center gap-2 flex-wrap">
 
-                        <!-- Selector de Modo: Lista o Columnas -->
-
-                        <div class="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
-
-                            <button onclick="cambiarModoVistaPlanif('lista')" id="btn-vista-lista" class="py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5" title="Vista Lista">
-
-                                <i class="fa-solid fa-bars-staggered text-xs"></i>
-
-                            </button>
-
-                            <button onclick="cambiarModoVistaPlanif('columnas')" id="btn-vista-columnas" class="py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-xs flex items-center gap-1.5" title="Vista Columnas Semanales">
-
-                                <i class="fa-solid fa-table-columns text-xs"></i>
-
-                            </button>
-
-                        </div>
+                        <!-- Selector de Modo: Lista, Columnas o Mensual -->
+<div class="flex items-center bg-slate-100 p-0.5 rounded-xl border border-slate-200">
+    <button onclick="cambiarModoVistaPlanif('lista')" id="btn-vista-lista" class="py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5" title="Vista Lista">
+        <i class="fa-solid fa-bars-staggered text-xs"></i>
+    </button>
+    <button onclick="cambiarModoVistaPlanif('columnas')" id="btn-vista-columnas" class="py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-xs flex items-center gap-1.5" title="Vista Columnas Semanales">
+        <i class="fa-solid fa-table-columns text-xs"></i>
+    </button>
+    <button onclick="cambiarModoVistaPlanif('mes')" id="btn-vista-mes" class="py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5" title="Vista Mensual (Largo plazo / Repasos)">
+        <i class="fa-solid fa-calendar-days text-xs"></i>
+    </button>
+</div>
 
 
 
@@ -3808,35 +3803,21 @@
 
 
         let appState = {
-
-            currentSection: 'dashboard',
-
-            syllabus: [],
-
-            leyes: [],
-
-            planificacion: [],
-
-            tests: [],
-
-            testsCam: [],
-
-            corteObjetivo: { p1: 33.70, p2: 14.00 },
-
-            fechasOposicion: { publicacionConvocatoria: '2027-01-15', finInscripcion: '2027-02-15', fechaExamen: '2027-05-15' },
-
-            currentWeekStart: null,
-
-            sidebarCalDate: new Date(),
-
-            sortAttemptsOrder: 'desc',
-
-            sortAttemptsOrderCam: 'desc',
-
-            accumulatedStudyTime: 0
-
-        };
-
+    currentSection: 'dashboard',
+    syllabus: [],
+    leyes: [],
+    planificacion: [],
+    tests: [],
+    testsCam: [],
+    corteObjetivo: { p1: 33.70, p2: 14.00 },
+    fechasOposicion: { publicacionConvocatoria: '2027-01-15', finInscripcion: '2027-02-15', fechaExamen: '2027-05-15' },
+    currentWeekStart: null,
+    sidebarCalDate: new Date(),
+    plannerMonthDate: new Date(), // <-- Añadir esta línea
+    sortAttemptsOrder: 'desc',
+    sortAttemptsOrderCam: 'desc',
+    accumulatedStudyTime: 0
+};
 
 
         // Escaper functions
@@ -10283,38 +10264,22 @@ finalRecord.detalles = `Ref: ${refFinal} | Aciertos: ${correct}, Fallos: ${error
 
 
         function cambiarModoVistaPlanif(modo) {
+    modoVistaPlanificador = modo;
+    localStorage.setItem('c1_planner_view_mode', modo);
+    
+    const btnLista = document.getElementById('btn-vista-lista');
+    const btnColumnas = document.getElementById('btn-vista-columnas');
+    const btnMes = document.getElementById('btn-vista-mes');
+    
+    const inactivoClase = "py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5";
+    const activoClase = "py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-xs flex items-center gap-1.5";
 
-            modoVistaPlanificador = modo;
+    if (btnLista) btnLista.className = (modo === 'lista') ? activoClase : inactivoClase;
+    if (btnColumnas) btnColumnas.className = (modo === 'columnas') ? activoClase : inactivoClase;
+    if (btnMes) btnMes.className = (modo === 'mes') ? activoClase : inactivoClase;
 
-            localStorage.setItem('c1_planner_view_mode', modo);
-
-            
-
-            const btnLista = document.getElementById('btn-vista-lista');
-
-            const btnColumnas = document.getElementById('btn-vista-columnas');
-
-            if (btnLista && btnColumnas) {
-
-                if (modo === 'lista') {
-
-                    btnLista.className = "py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-xs flex items-center gap-1.5";
-
-                    btnColumnas.className = "py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5";
-
-                } else {
-
-                    btnColumnas.className = "py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all bg-white text-indigo-700 shadow-xs flex items-center gap-1.5";
-
-                    btnLista.className = "py-1.5 px-2.5 rounded-lg text-xs font-bold transition-all text-slate-500 hover:text-slate-800 flex items-center gap-1.5";
-
-                }
-
-            }
-
-            renderPlanificadorSemana();
-
-        }
+    renderPlanificadorSemana();
+}
 
 
 
@@ -10389,433 +10354,330 @@ finalRecord.detalles = `Ref: ${refFinal} | Aciertos: ${correct}, Fallos: ${error
 
 
         function renderPlanificadorSemana() {
-
-            const container = document.getElementById('planner-days-horizontal-container');
-
-            if (!container) return;
-
-            container.innerHTML = '';
-
-
-
-            const weekDaysNames = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
-
-            const mondayDate = new Date(appState.currentWeekStart);
-
-
-
-            const sundayDate = new Date(mondayDate);
-
-            sundayDate.setDate(mondayDate.getDate() + 6);
-
-            document.getElementById('calendar-week-range').innerText = `Semana del ${mondayDate.getDate()} ${obtenerMesCorto(mondayDate)} al ${sundayDate.getDate()} ${obtenerMesCorto(sundayDate)}`;
-
-
-
-            const todayStr = formatDateLocal(new Date());
-
-
-
-            // VISTA EN COLUMNAS (KANBAN CON DRAG & DROP)
-
-            if (modoVistaPlanificador === 'columnas') {
-
-               const gridCol = document.createElement('div');
-
-                gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 pb-3 items-start select-none w-full";
-
-
-
-                for (let i = 0; i < 7; i++) {
-
-                    const currentDayObj = new Date(mondayDate);
-
-                    currentDayObj.setDate(mondayDate.getDate() + i);
-
-                    const currentDayStr = formatDateLocal(currentDayObj);
-
-
-
-                    const dayRowPlans = appState.planificacion.filter(p => p.date === currentDayStr);
-
-                    const totalDayItems = dayRowPlans.length;
-
-                    const completedDayItems = dayRowPlans.filter(p => p.completed).length;
-
-                    const pendientes = totalDayItems - completedDayItems;
-
-                    const dayProgressRatio = totalDayItems > 0 ? Math.round((completedDayItems / totalDayItems) * 100) : 0;
-
-                    const isToday = (currentDayStr === todayStr);
-
-
-
-                    // Badge de estado en la cabecera del día
-
-                    let badgeEstadoDia = "";
-
-                    if (totalDayItems > 0) {
-
-                        if (pendientes === 0) {
-
-                            badgeEstadoDia = `<span class="text-[8px] bg-emerald-100 text-emerald-800 font-black px-1.5 py-0.5 rounded-md border border-emerald-300">✓ Listo</span>`;
-
-                        } else {
-
-                            badgeEstadoDia = `<span class="text-[8px] bg-white/90 text-slate-700 font-extrabold px-1.5 py-0.5 rounded-md border border-slate-200">${pendientes} pend.</span>`;
-
-                        }
-
-                    }
-
-
-
-                    const borderColClass = isToday 
-
-                        ? "border-2 border-indigo-500 bg-indigo-50/20 ring-2 ring-indigo-100 shadow-sm" 
-
-                        : "border border-slate-200 bg-white shadow-xs";
-
-
-
-                    const headerBgClass = isToday ? "bg-indigo-600 text-white" : "bg-slate-50 text-slate-800 border-b border-slate-100";
-
-                    const subTextColor = isToday ? "text-indigo-100" : "text-slate-400";
-
-
-
-                    const colCard = document.createElement('div');
-
-                    colCard.className = `${borderColClass} rounded-2xl overflow-hidden flex flex-col min-h-[390px] transition-all planner-drop-zone`;
-
-                    colCard.setAttribute("ondragover", "onDayDragOver(event)");
-
-                    colCard.setAttribute("ondragleave", "onDayDragLeave(event)");
-
-                    colCard.setAttribute("ondrop", `onDayDrop(event, '${currentDayStr}')`);
-
-
-
-                    colCard.innerHTML = `
-
-                        <div class="p-3 ${headerBgClass} flex justify-between items-center">
-
-                            <div>
-
-                                <div class="flex items-center gap-1.5">
-
-                                    <span class="text-xs font-black uppercase tracking-wider">${weekDaysNames[i]}</span>
-
-                                    ${isToday ? '<span class="text-[8px] bg-white text-indigo-700 font-extrabold px-1.5 py-0.2 rounded-full">HOY</span>' : ''}
-
-                                </div>
-
-                                <span class="text-[10px] font-bold ${subTextColor} font-mono block mt-0.5">${currentDayObj.getDate()} ${obtenerMesCorto(currentDayObj)}</span>
-
-                            </div>
-
-                            <div class="flex items-center gap-1">
-
-                                ${badgeEstadoDia}
-
-                            </div>
-
-                        </div>
-
-
-
-                        <div class="w-full bg-slate-100 h-1">
-
-                            <div class="h-full transition-all duration-300 ${dayProgressRatio === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}" style="width: ${dayProgressRatio}%"></div>
-
-                        </div>
-
-
-
-                        <div class="p-2.5 space-y-2 flex-1 overflow-y-auto max-h-[460px]">
-
-                            ${dayRowPlans.length === 0 
-
-                                ? `<p class="text-[10px] text-slate-400 italic text-center py-8">Arrastra o añade actividades aquí</p>`
-
-                                : dayRowPlans.map(p => {
-
-                                    let iconClass = p.completed ? "fa-regular fa-square-check text-emerald-600 text-sm" : "fa-regular fa-square text-slate-300 hover:text-indigo-500 text-sm";
-
-                                    let titleClass = p.completed ? "text-emerald-950 font-semibold line-through opacity-70" : "text-slate-800 font-bold";
-
-                                    const studyBadgeHtml = obtenerBadgeTipoEstudio(p.studyType);
-
-
-
-                                    return `
-
-                                    <div draggable="true" 
-
-                                         ondragstart="onTaskDragStart(event, '${p.id}', '${p.date}')" 
-
-                                         ondragend="onTaskDragEnd(event)"
-
-                                         class="p-2.5 rounded-xl border flex flex-col gap-1.5 transition-all cursor-grab active:cursor-grabbing ${p.completed ? 'bg-emerald-50/30 border-emerald-200' : 'bg-slate-50/70 border-slate-200 hover:bg-white hover:border-slate-300 shadow-2xs'}">
-
-                                        <div class="flex items-start justify-between gap-1.5">
-
-                                            <button onclick="toggleEstadoCompletadoPlan('${p.id}', '${p.date}')" class="shrink-0 mt-0.5">
-
-                                                <i class="${iconClass}"></i>
-
-                                            </button>
-
-                                            <h5 class="text-xs leading-tight flex-1 ${titleClass}">${p.name}</h5>
-
-                                            <button onclick="borrarPlanificado('${p.id}', '${p.date}')" class="text-slate-300 hover:text-rose-500 font-bold text-xs shrink-0">
-
-                                                <i class="fa-solid fa-xmark"></i>
-
-                                            </button>
-
-                                        </div>
-
-                                        <div class="flex items-center justify-between gap-1 mt-0.5">
-
-                                           <span class="text-[8.5px] text-slate-400 truncate flex-1 min-w-0">${p.subtitle || ''}</span>
-
-                                           <span class="shrink-0">${studyBadgeHtml}</span>
-
-                                        </div>
-
-                                    </div>
-
-                                    `;
-
-                                }).join('')
-
-                            }
-
-                        </div>
-
-
-
-                        <div class="p-2 border-t border-slate-100 bg-white flex justify-center">
-
-                            <button onclick="abrirModalPlanifDirectoParaDia('${currentDayStr}')" class="text-[10px] font-bold text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition-colors">
-
-                                <i class="fa-solid fa-plus text-[9px]"></i> Añadir Tarea
-
-                            </button>
-
-                        </div>
-
-                    `;
-
-                    gridCol.appendChild(colCard);
-
-                }
-
-                container.appendChild(gridCol);
-
-                renderInbox();
-
-                return;
-
-            }
-
-
-
-            // VISTA EN LISTA VERTICAL
-
-            for (let i = 0; i < 7; i++) {
-
-                const currentDayObj = new Date(mondayDate);
-
-                currentDayObj.setDate(mondayDate.getDate() + i);
-
-                const currentDayStr = formatDateLocal(currentDayObj);
-
-
-
-                const dayRowPlans = appState.planificacion.filter(p => p.date === currentDayStr);
-
-                const totalDayItems = dayRowPlans.length;
-
-                const completedDayItems = dayRowPlans.filter(p => p.completed).length;
-
-                const pendientes = totalDayItems - completedDayItems;
-
-                const dayProgressRatio = totalDayItems > 0 ? Math.round((completedDayItems / totalDayItems) * 100) : 0;
-
-
-
-                const storedState = localStorage.getItem(`planner-dia-plegado-${currentDayStr}`);
-
-                const isPlegado = (storedState === null) ? true : (storedState === 'true');
-
-                const isToday = (currentDayStr === todayStr);
-
-
-
-                let progressBarColor = 'bg-indigo-600';
-
-                if (dayProgressRatio === 100 && totalDayItems > 0) progressBarColor = 'bg-emerald-500';
-
-
-
-                const dayRowClass = isToday 
-
-                    ? "border-2 border-indigo-400 bg-indigo-50/20 shadow-xs" 
-
-                    : "border border-slate-200 bg-white shadow-xs";
-
-
-
-                let badgeLista = "";
-
-                if (totalDayItems > 0) {
-
-                    badgeLista = (pendientes === 0) 
-
-                        ? `<span class="text-[9px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 py-0.5 px-2 rounded-md">✓ Completado</span>`
-
-                        : `<span class="text-[9px] font-extrabold text-slate-500 bg-white border py-0.5 px-2 rounded-md">${pendientes} pendientes</span>`;
-
-                }
-
-
-
-                const dayRow = document.createElement('div');
-
-                dayRow.className = `${dayRowClass} rounded-2xl overflow-hidden transition-all`;
-
-                dayRow.innerHTML = `
-
-                    <div class="p-4 ${isToday ? 'bg-indigo-50/60' : 'bg-slate-50/50'} hover:bg-slate-100/50 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3 select-none" onclick="toggleDiaPlanificador('${currentDayStr}')">
-
-                        <div class="flex items-center gap-3">
-
-                            <span class="text-xs font-black text-slate-800 tracking-wide w-24 flex items-center gap-1.5">
-
-                                ${weekDaysNames[i]}
-
-                                ${isToday ? '<span class="text-[8px] bg-indigo-600 text-white font-black px-1.5 py-0.2 rounded-full">HOY</span>' : ''}
-
-                            </span>
-
-                            <span class="text-[10px] font-bold text-slate-400 font-mono">${currentDayObj.getDate()} ${obtenerMesLargo(currentDayObj)}</span>
-
-                        </div>
-
-                        <div class="flex-1 flex items-center gap-4 max-w-md">
-
-                            <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
-
-                                <div class="${progressBarColor} h-full transition-all duration-300" style="width: ${dayProgressRatio}%"></div>
-
-                            </div>
-
-                            <span class="text-[10px] font-extrabold text-slate-500 font-mono w-12 text-right">${dayProgressRatio}%</span>
-
-                        </div>
-
-                        <div class="flex items-center gap-2">
-
-                            ${badgeLista}
-
-                            <i id="chevron-dia-${currentDayStr}" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300 ${isPlegado ? '' : 'rotate-180'}"></i>
-
-                        </div>
-
-                    </div>
-
-                    <div id="content-dia-${currentDayStr}" class="${isPlegado ? 'hidden' : ''} p-4 border-t border-slate-100 space-y-3 bg-white">
-
-                        <div class="space-y-2" id="elements-dia-${currentDayStr}"></div>
-
-                        <div class="flex justify-end pt-1">
-
-                            <button onclick="abrirModalPlanifDirectoParaDia('${currentDayStr}')" class="text-[10px] font-bold text-slate-400 hover:text-indigo-600 flex items-center gap-1.5">
-
-                                <i class="fa-solid fa-calendar-plus text-xs"></i> Añadir Actividad
-
-                            </button>
-
-                        </div>
-
-                    </div>
-
-                `;
-
-                container.appendChild(dayRow);
-
-
-
-                const elementsContainer = document.getElementById(`elements-dia-${currentDayStr}`);
-
-                if (dayRowPlans.length === 0) {
-
-                    elementsContainer.innerHTML = `<p class="text-[10px] text-slate-400 italic py-2">Ninguna actividad programada.</p>`;
-
-                } else {
-
-                    dayRowPlans.forEach(p => {
-
-                        const itemCard = document.createElement('div');
-
-                        itemCard.className = `p-3 rounded-xl border flex justify-between items-center transition-all ${p.completed ? 'bg-emerald-50/20 border-emerald-200' : 'bg-slate-50/30 border-slate-200'}`;
-
-                        let iconClass = p.completed ? "fa-regular fa-square-check text-emerald-600 text-sm" : "fa-regular fa-square text-slate-300 hover:text-indigo-500 text-sm";
-
-                        let titleClass = p.completed ? "text-emerald-950 font-semibold line-through opacity-70" : "text-slate-800 font-bold";
-
-                        const studyBadgeHtml = obtenerBadgeTipoEstudio(p.studyType);
-
-
-
-                        itemCard.innerHTML = `
-
-                            <div class="flex items-center gap-3 min-w-0">
-
-                                <button onclick="toggleEstadoCompletadoPlan('${p.id}', '${p.date}')" class="shrink-0 flex items-center justify-center">
-
-                                    <i class="${iconClass}"></i>
-
-                                </button>
-
-                                <div class="space-y-0.5 min-w-0">
-
-                                    <div class="flex items-center gap-1.5 flex-wrap">
-
-                                        <h5 class="text-xs leading-snug truncate ${titleClass}">${p.name}</h5>
-
-                                        ${studyBadgeHtml}
-
-                                    </div>
-
-                                    <p class="text-[9px] text-slate-400 truncate font-semibold uppercase tracking-wider">${p.subtitle || ''}</p>
-
-                                </div>
-
-                            </div>
-
-                            <button onclick="borrarPlanificado('${p.id}', '${p.date}')" class="text-slate-300 hover:text-rose-500 font-bold ml-2 shrink-0">
-
-                                <i class="fa-solid fa-circle-xmark"></i>
-
-                            </button>
-
-                        `;
-
-                        elementsContainer.appendChild(itemCard);
-
-                    });
-
-                }
-
-            }
-
-            renderInbox();
-
+    const container = document.getElementById('planner-days-horizontal-container');
+    if (!container) return;
+    container.innerHTML = '';
+
+    const weekDaysNames = ["Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado", "Domingo"];
+    const todayStr = formatDateLocal(new Date());
+
+    // =====================================================
+    // 1. VISTA MENSUAL (A LARGO PLAZO / REPASOS AUTOMÁTICOS)
+    // =====================================================
+    if (modoVistaPlanificador === 'mes') {
+        const curDate = appState.plannerMonthDate || new Date();
+        const year = curDate.getFullYear();
+        const month = curDate.getMonth();
+        const monthNames = ["Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"];
+
+        document.getElementById('calendar-week-range').innerText = `Mes de ${monthNames[month]} ${year}`;
+
+        const monthContainer = document.createElement('div');
+        monthContainer.className = "bg-white border border-slate-200 rounded-2xl p-4 shadow-xs space-y-3";
+
+        // Cabecera L-D
+        let tableHeaderHtml = `
+            <div class="grid grid-cols-7 text-center text-[10px] font-extrabold text-slate-400 uppercase tracking-wider pb-2 border-b border-slate-100">
+                <span>Lun</span><span>Mar</span><span>Mié</span><span>Jue</span><span>Vie</span><span class="text-amber-500">Sáb</span><span class="text-amber-500">Dom</span>
+            </div>
+        `;
+
+        const daysGrid = document.createElement('div');
+        daysGrid.className = "grid grid-cols-7 gap-2";
+
+        const firstDayOfMonth = new Date(year, month, 1);
+        let startDayIdx = firstDayOfMonth.getDay() - 1;
+        if (startDayIdx === -1) startDayIdx = 6;
+
+        const totalDaysInMonth = new Date(year, month + 1, 0).getDate();
+
+        // Celdas vacías del mes anterior
+        for (let i = 0; i < startDayIdx; i++) {
+            const emptyCell = document.createElement('div');
+            emptyCell.className = "min-h-[95px] p-1.5 rounded-xl bg-slate-50/50 border border-dashed border-slate-200/60 opacity-40";
+            daysGrid.appendChild(emptyCell);
         }
 
+        // Días del mes actual
+        for (let day = 1; day <= totalDaysInMonth; day++) {
+            const dayObj = new Date(year, month, day);
+            const dayStr = formatDateLocal(dayObj);
+            const isToday = (dayStr === todayStr);
+
+            const dayTasks = appState.planificacion.filter(p => p.date === dayStr);
+            const totalTasks = dayTasks.length;
+            const completedTasks = dayTasks.filter(p => p.completed).length;
+
+            const dayCell = document.createElement('div');
+            dayCell.className = `min-h-[115px] p-2 rounded-xl border flex flex-col justify-between transition-all planner-drop-zone ${
+                isToday 
+                    ? 'border-2 border-indigo-500 bg-indigo-50/15 ring-1 ring-indigo-200' 
+                    : 'border-slate-200 bg-white hover:border-slate-300'
+            }`;
+            dayCell.setAttribute("ondragover", "onDayDragOver(event)");
+            dayCell.setAttribute("ondragleave", "onDayDragLeave(event)");
+            dayCell.setAttribute("ondrop", `onDayDrop(event, '${dayStr}')`);
+
+            // Encabezado de la celda de día
+            let cellHeader = `
+                <div class="flex items-center justify-between border-b border-slate-100 pb-1 mb-1">
+                    <span class="text-xs font-black font-mono ${isToday ? 'bg-indigo-600 text-white px-1.5 py-0.2 rounded-md' : 'text-slate-700'}">${day}</span>
+                    <div class="flex items-center gap-1">
+                        ${totalTasks > 0 ? `<span class="text-[8px] font-mono font-black ${completedTasks === totalTasks ? 'text-emerald-700 bg-emerald-50' : 'text-indigo-700 bg-indigo-50'} px-1 py-0.2 rounded border border-slate-200">${completedTasks}/${totalTasks}</span>` : ''}
+                        <button onclick="abrirModalPlanifDirectoParaDia('${dayStr}')" class="text-slate-300 hover:text-indigo-600 text-[10px]" title="Añadir tarea a este día"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                </div>
+            `;
+
+            // Tareas dentro de la celda
+            let tasksListHtml = `<div class="space-y-1 overflow-y-auto max-h-[80px] flex-1">`;
+            if (dayTasks.length === 0) {
+                tasksListHtml += `<div class="h-full flex items-center justify-center text-[9px] text-slate-300 italic">Libre</div>`;
+            } else {
+                dayTasks.forEach(t => {
+                    tasksListHtml += `
+                        <div draggable="true"
+                             ondragstart="onTaskDragStart(event, '${t.id}', '${t.date}')"
+                             ondragend="onTaskDragEnd(event)"
+                             class="p-1 rounded-md text-[9px] font-bold border transition-all cursor-grab active:cursor-grabbing truncate flex items-center justify-between gap-1 ${
+                                 t.completed ? 'bg-emerald-50 text-emerald-800 border-emerald-200 line-through opacity-75' : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-700'
+                             }" title="${t.name} (Arrastra para mover o duplicar con Ctrl)">
+                            <span class="truncate flex-1">${t.name}</span>
+                            <button onclick="event.stopPropagation(); toggleEstadoCompletadoPlan('${t.id}', '${t.date}')" class="shrink-0 text-[8px] text-slate-400 hover:text-emerald-600">
+                                <i class="${t.completed ? 'fa-solid fa-check' : 'fa-regular fa-square'}"></i>
+                            </button>
+                        </div>
+                    `;
+                });
+            }
+            tasksListHtml += `</div>`;
+
+            dayCell.innerHTML = cellHeader + tasksListHtml;
+            daysGrid.appendChild(dayCell);
+        }
+
+        monthContainer.innerHTML = tableHeaderHtml;
+        monthContainer.appendChild(daysGrid);
+        container.appendChild(monthContainer);
+        renderInbox();
+        return;
+    }
+
+    // =====================================================
+    // 2. VISTA COLUMNAS (KANBAN SEMANAL)
+    // =====================================================
+    const mondayDate = new Date(appState.currentWeekStart);
+    const sundayDate = new Date(mondayDate);
+    sundayDate.setDate(mondayDate.getDate() + 6);
+    document.getElementById('calendar-week-range').innerText = `Semana del ${mondayDate.getDate()} ${obtenerMesCorto(mondayDate)} al ${sundayDate.getDate()} ${obtenerMesCorto(sundayDate)}`;
+
+    if (modoVistaPlanificador === 'columnas') {
+        const gridCol = document.createElement('div');
+        gridCol.className = "grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 xl:grid-cols-7 gap-3 pb-3 items-start select-none w-full";
+
+        for (let i = 0; i < 7; i++) {
+            const currentDayObj = new Date(mondayDate);
+            currentDayObj.setDate(mondayDate.getDate() + i);
+            const currentDayStr = formatDateLocal(currentDayObj);
+
+            const dayRowPlans = appState.planificacion.filter(p => p.date === currentDayStr);
+            const totalDayItems = dayRowPlans.length;
+            const completedDayItems = dayRowPlans.filter(p => p.completed).length;
+            const pendientes = totalDayItems - completedDayItems;
+            const dayProgressRatio = totalDayItems > 0 ? Math.round((completedDayItems / totalDayItems) * 100) : 0;
+            const isToday = (currentDayStr === todayStr);
+
+            let badgeEstadoDia = "";
+            if (totalDayItems > 0) {
+                if (pendientes === 0) {
+                    badgeEstadoDia = `<span class="text-[8px] bg-emerald-100 text-emerald-800 font-black px-1.5 py-0.5 rounded-md border border-emerald-300">✓ Listo</span>`;
+                } else {
+                    badgeEstadoDia = `<span class="text-[8px] bg-white/90 text-slate-700 font-extrabold px-1.5 py-0.5 rounded-md border border-slate-200">${pendientes} pend.</span>`;
+                }
+            }
+
+            const borderColClass = isToday 
+                ? "border-2 border-indigo-500 bg-indigo-50/20 ring-2 ring-indigo-100 shadow-sm" 
+                : "border border-slate-200 bg-white shadow-xs";
+
+            const headerBgClass = isToday ? "bg-indigo-600 text-white" : "bg-slate-50 text-slate-800 border-b border-slate-100";
+            const subTextColor = isToday ? "text-indigo-100" : "text-slate-400";
+
+            const colCard = document.createElement('div');
+            colCard.className = `${borderColClass} rounded-2xl overflow-hidden flex flex-col min-h-[390px] transition-all planner-drop-zone`;
+            colCard.setAttribute("ondragover", "onDayDragOver(event)");
+            colCard.setAttribute("ondragleave", "onDayDragLeave(event)");
+            colCard.setAttribute("ondrop", `onDayDrop(event, '${currentDayStr}')`);
+
+            colCard.innerHTML = `
+                <div class="p-3 ${headerBgClass} flex justify-between items-center">
+                    <div>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-xs font-black uppercase tracking-wider">${weekDaysNames[i]}</span>
+                            ${isToday ? '<span class="text-[8px] bg-white text-indigo-700 font-extrabold px-1.5 py-0.2 rounded-full">HOY</span>' : ''}
+                        </div>
+                        <span class="text-[10px] font-bold ${subTextColor} font-mono block mt-0.5">${currentDayObj.getDate()} ${obtenerMesCorto(currentDayObj)}</span>
+                    </div>
+                    <div class="flex items-center gap-1">${badgeEstadoDia}</div>
+                </div>
+
+                <div class="w-full bg-slate-100 h-1">
+                    <div class="h-full transition-all duration-300 ${dayProgressRatio === 100 ? 'bg-emerald-500' : 'bg-indigo-500'}" style="width: ${dayProgressRatio}%"></div>
+                </div>
+
+                <div class="p-2.5 space-y-2 flex-1 overflow-y-auto max-h-[460px]">
+                    ${dayRowPlans.length === 0 
+                        ? `<p class="text-[10px] text-slate-400 italic text-center py-8">Arrastra o añade actividades aquí</p>`
+                        : dayRowPlans.map(p => {
+                            let iconClass = p.completed ? "fa-regular fa-square-check text-emerald-600 text-sm" : "fa-regular fa-square text-slate-300 hover:text-indigo-500 text-sm";
+                            let titleClass = p.completed ? "text-emerald-950 font-semibold line-through opacity-70" : "text-slate-800 font-bold";
+                            const studyBadgeHtml = obtenerBadgeTipoEstudio(p.studyType);
+
+                            return `
+                            <div draggable="true" 
+                                 ondragstart="onTaskDragStart(event, '${p.id}', '${p.date}')" 
+                                 ondragend="onTaskDragEnd(event)"
+                                 class="p-2.5 rounded-xl border flex flex-col gap-1.5 transition-all cursor-grab active:cursor-grabbing ${p.completed ? 'bg-emerald-50/30 border-emerald-200' : 'bg-slate-50/70 border-slate-200 hover:bg-white hover:border-slate-300 shadow-2xs'}">
+                                <div class="flex items-start justify-between gap-1.5">
+                                    <button onclick="toggleEstadoCompletadoPlan('${p.id}', '${p.date}')" class="shrink-0 mt-0.5">
+                                        <i class="${iconClass}"></i>
+                                    </button>
+                                    <h5 class="text-xs leading-tight flex-1 ${titleClass}">${p.name}</h5>
+                                    <button onclick="borrarPlanificado('${p.id}', '${p.date}')" class="text-slate-300 hover:text-rose-500 font-bold text-xs shrink-0">
+                                        <i class="fa-solid fa-xmark"></i>
+                                    </button>
+                                </div>
+                                <div class="flex items-center justify-between gap-1 mt-0.5">
+                                   <span class="text-[8.5px] text-slate-400 truncate flex-1 min-w-0">${p.subtitle || ''}</span>
+                                   <span class="shrink-0">${studyBadgeHtml}</span>
+                                </div>
+                            </div>
+                            `;
+                        }).join('')
+                    }
+                </div>
+
+                <div class="p-2 border-t border-slate-100 bg-white flex justify-center">
+                    <button onclick="abrirModalPlanifDirectoParaDia('${currentDayStr}')" class="text-[10px] font-bold text-slate-500 hover:text-indigo-600 flex items-center gap-1 transition-colors">
+                        <i class="fa-solid fa-plus text-[9px]"></i> Añadir Tarea
+                    </button>
+                </div>
+            `;
+            gridCol.appendChild(colCard);
+        }
+        container.appendChild(gridCol);
+        renderInbox();
+        return;
+    }
+
+    // =====================================================
+    // 3. VISTA LISTA HORIZONTAL (CON DRAG & DROP ENTRE DÍAS)
+    // =====================================================
+    for (let i = 0; i < 7; i++) {
+        const currentDayObj = new Date(mondayDate);
+        currentDayObj.setDate(mondayDate.getDate() + i);
+        const currentDayStr = formatDateLocal(currentDayObj);
+
+        const dayRowPlans = appState.planificacion.filter(p => p.date === currentDayStr);
+        const totalDayItems = dayRowPlans.length;
+        const completedDayItems = dayRowPlans.filter(p => p.completed).length;
+        const pendientes = totalDayItems - completedDayItems;
+        const dayProgressRatio = totalDayItems > 0 ? Math.round((completedDayItems / totalDayItems) * 100) : 0;
+
+        const storedState = localStorage.getItem(`planner-dia-plegado-${currentDayStr}`);
+        const isPlegado = (storedState === null) ? true : (storedState === 'true');
+        const isToday = (currentDayStr === todayStr);
+
+        let progressBarColor = 'bg-indigo-600';
+        if (dayProgressRatio === 100 && totalDayItems > 0) progressBarColor = 'bg-emerald-500';
+
+        const dayRowClass = isToday 
+            ? "border-2 border-indigo-400 bg-indigo-50/20 shadow-xs" 
+            : "border border-slate-200 bg-white shadow-xs";
+
+        let badgeLista = "";
+        if (totalDayItems > 0) {
+            badgeLista = (pendientes === 0) 
+                ? `<span class="text-[9px] font-black text-emerald-700 bg-emerald-50 border border-emerald-200 py-0.5 px-2 rounded-md">✓ Completado</span>`
+                : `<span class="text-[9px] font-extrabold text-slate-500 bg-white border py-0.5 px-2 rounded-md">${pendientes} pendientes</span>`;
+        }
+
+        const dayRow = document.createElement('div');
+        dayRow.className = `${dayRowClass} rounded-2xl overflow-hidden transition-all planner-drop-zone`;
+        dayRow.setAttribute("ondragover", "onDayDragOver(event)");
+        dayRow.setAttribute("ondragleave", "onDayDragLeave(event)");
+        dayRow.setAttribute("ondrop", `onDayDrop(event, '${currentDayStr}')`);
+
+        dayRow.innerHTML = `
+            <div class="p-4 ${isToday ? 'bg-indigo-50/60' : 'bg-slate-50/50'} hover:bg-slate-100/50 cursor-pointer flex flex-col md:flex-row md:items-center justify-between gap-3 select-none" onclick="toggleDiaPlanificador('${currentDayStr}')">
+                <div class="flex items-center gap-3">
+                    <span class="text-xs font-black text-slate-800 tracking-wide w-24 flex items-center gap-1.5">
+                        ${weekDaysNames[i]}
+                        ${isToday ? '<span class="text-[8px] bg-indigo-600 text-white font-black px-1.5 py-0.2 rounded-full">HOY</span>' : ''}
+                    </span>
+                    <span class="text-[10px] font-bold text-slate-400 font-mono">${currentDayObj.getDate()} ${obtenerMesLargo(currentDayObj)}</span>
+                </div>
+                <div class="flex-1 flex items-center gap-4 max-w-md">
+                    <div class="w-full bg-slate-200 h-2 rounded-full overflow-hidden">
+                        <div class="${progressBarColor} h-full transition-all duration-300" style="width: ${dayProgressRatio}%"></div>
+                    </div>
+                    <span class="text-[10px] font-extrabold text-slate-500 font-mono w-12 text-right">${dayProgressRatio}%</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    ${badgeLista}
+                    <i id="chevron-dia-${currentDayStr}" class="fa-solid fa-chevron-down text-slate-400 text-xs transition-transform duration-300 ${isPlegado ? '' : 'rotate-180'}"></i>
+                </div>
+            </div>
+            <div id="content-dia-${currentDayStr}" class="${isPlegado ? 'hidden' : ''} p-4 border-t border-slate-100 space-y-3 bg-white">
+                <div class="space-y-2" id="elements-dia-${currentDayStr}"></div>
+                <div class="flex justify-end pt-1">
+                    <button onclick="abrirModalPlanifDirectoParaDia('${currentDayStr}')" class="text-[10px] font-bold text-slate-400 hover:text-indigo-600 flex items-center gap-1.5">
+                        <i class="fa-solid fa-calendar-plus text-xs"></i> Añadir Actividad
+                    </button>
+                </div>
+            </div>
+        `;
+        container.appendChild(dayRow);
+
+        const elementsContainer = document.getElementById(`elements-dia-${currentDayStr}`);
+        if (dayRowPlans.length === 0) {
+            elementsContainer.innerHTML = `<p class="text-[10px] text-slate-400 italic py-2">Ninguna actividad programada. Arrastra una tarea aquí.</p>`;
+        } else {
+            dayRowPlans.forEach(p => {
+                const itemCard = document.createElement('div');
+                itemCard.setAttribute('draggable', 'true');
+                itemCard.setAttribute('ondragstart', `onTaskDragStart(event, '${p.id}', '${p.date}')`);
+                itemCard.setAttribute('ondragend', 'onTaskDragEnd(event)');
+                itemCard.className = `p-3 rounded-xl border flex justify-between items-center transition-all cursor-grab active:cursor-grabbing ${
+                    p.completed ? 'bg-emerald-50/20 border-emerald-200' : 'bg-slate-50/50 border-slate-200 hover:bg-white hover:border-slate-300 shadow-2xs'
+                }`;
+                let iconClass = p.completed ? "fa-regular fa-square-check text-emerald-600 text-sm" : "fa-regular fa-square text-slate-300 hover:text-indigo-500 text-sm";
+                let titleClass = p.completed ? "text-emerald-950 font-semibold line-through opacity-70" : "text-slate-800 font-bold";
+                const studyBadgeHtml = obtenerBadgeTipoEstudio(p.studyType);
+
+                itemCard.innerHTML = `
+                    <div class="flex items-center gap-3 min-w-0 flex-1">
+                        <button onclick="toggleEstadoCompletadoPlan('${p.id}', '${p.date}')" class="shrink-0 flex items-center justify-center">
+                            <i class="${iconClass}"></i>
+                        </button>
+                        <div class="space-y-0.5 min-w-0 flex-1">
+                            <div class="flex items-center gap-1.5 flex-wrap">
+                                <h5 class="text-xs leading-snug truncate ${titleClass}">${p.name}</h5>
+                                ${studyBadgeHtml}
+                            </div>
+                            <p class="text-[9px] text-slate-400 truncate font-semibold uppercase tracking-wider">${p.subtitle || ''}</p>
+                        </div>
+                    </div>
+                    <button onclick="borrarPlanificado('${p.id}', '${p.date}')" class="text-slate-300 hover:text-rose-500 font-bold ml-2 shrink-0 p-1">
+                        <i class="fa-solid fa-circle-xmark"></i>
+                    </button>
+                `;
+                elementsContainer.appendChild(itemCard);
+            });
+        }
+    }
+    renderInbox();
+}
         function toggleDiaPlanificador(dayStr) {
 
             const storedState = localStorage.getItem(`planner-dia-plegado-${dayStr}`);
@@ -10831,62 +10693,41 @@ finalRecord.detalles = `Ref: ${refFinal} | Aciertos: ${correct}, Fallos: ${error
 
 
         function renderInbox() {
+    const list = document.getElementById('inbox-elements-list');
+    if (!list) return;
+    list.innerHTML = '';
 
-            const list = document.getElementById('inbox-elements-list');
+    const inboxPlans = appState.planificacion.filter(p => p.date === 'inbox');
+    document.getElementById('inbox-badge-count').innerText = inboxPlans.length;
 
-            if (!list) return;
+    if (inboxPlans.length === 0) {
+        list.innerHTML = `<p class="text-[10px] text-slate-400 italic py-2 col-span-full">Bandeja vacía. Haz doble clic en cualquier tema o ley para mandarlo aquí.</p>`;
+        return;
+    }
 
-            list.innerHTML = '';
-
-
-
-            const inboxPlans = appState.planificacion.filter(p => p.date === 'inbox');
-
-            document.getElementById('inbox-badge-count').innerText = inboxPlans.length;
-
-
-
-            if (inboxPlans.length === 0) {
-
-                list.innerHTML = `<p class="text-[10px] text-slate-400 italic py-2 col-span-full">Bandeja vacía. Haz doble clic en cualquier tema o ley para mandarlo aquí.</p>`;
-
-                return;
-
-            }
-
-
-
-            inboxPlans.forEach(p => {
-
-                const card = document.createElement('div');
-
-                card.className = "p-3 rounded-xl border border-slate-150 bg-slate-50/50 hover:bg-slate-50 transition-all flex items-center justify-between";
-
-                card.innerHTML = `
-
-                    <div class="min-w-0 flex-1 space-y-0.5 pr-2">
-
-                        <h5 class="text-xs font-bold text-slate-800 leading-snug truncate">${p.name}</h5>
-
-                        <p class="text-[8px] font-extrabold text-slate-400 uppercase tracking-widest">${p.subtitle || ''}</p>
-
-                    </div>
-
-                    <div class="flex items-center gap-1.5 shrink-0">
-
-                        <button onclick="asignarFechaDesdeInbox('${p.id}')" class="h-7 py-1 px-2.5 rounded-lg bg-indigo-50 border border-indigo-150 hover:bg-indigo-100 text-indigo-700 text-[10px] font-bold">Asignar</button>
-
-                        <button onclick="borrarPlanificado('${p.id}', 'inbox')" class="text-slate-300 hover:text-rose-500 font-bold ml-1"><i class="fa-solid fa-trash-can text-xs"></i></button>
-
-                    </div>
-
-                `;
-
-                list.appendChild(card);
-
-            });
-
-        }
+    inboxPlans.forEach(p => {
+        const card = document.createElement('div');
+        card.setAttribute('draggable', 'true');
+        card.setAttribute('ondragstart', `onTaskDragStart(event, '${p.id}', 'inbox')`);
+        card.setAttribute('ondragend', 'onTaskDragEnd(event)');
+        card.className = "p-3 rounded-xl border border-slate-200 bg-white hover:border-indigo-300 hover:shadow-xs transition-all flex items-center justify-between cursor-grab active:cursor-grabbing group";
+        
+        card.innerHTML = `
+            <div class="min-w-0 flex-1 space-y-0.5 pr-2">
+                <div class="flex items-center gap-1.5">
+                    <i class="fa-solid fa-grip-vertical text-slate-300 text-[10px] group-hover:text-indigo-400"></i>
+                    <h5 class="text-xs font-bold text-slate-800 leading-snug truncate">${p.name}</h5>
+                </div>
+                <p class="text-[8.5px] font-semibold text-slate-400 uppercase tracking-wider pl-3.5 truncate">${p.subtitle || 'Sin fecha asignada'}</p>
+            </div>
+            <div class="flex items-center gap-1.5 shrink-0">
+                <button onclick="asignarFechaDesdeInbox('${p.id}')" class="h-6 py-0.5 px-2 rounded-lg bg-indigo-50 border border-indigo-200 hover:bg-indigo-100 text-indigo-700 text-[9px] font-bold">Asignar</button>
+                <button onclick="borrarPlanificado('${p.id}', 'inbox')" class="text-slate-300 hover:text-rose-500 font-bold ml-1 p-1"><i class="fa-solid fa-xmark text-xs"></i></button>
+            </div>
+        `;
+        list.appendChild(card);
+    });
+}
 
 
 
@@ -10911,36 +10752,28 @@ finalRecord.detalles = `Ref: ${refFinal} | Aciertos: ${correct}, Fallos: ${error
 
 
         function navegarSemana(direction) {
+    if (modoVistaPlanificador === 'mes') {
+        appState.plannerMonthDate.setMonth(appState.plannerMonthDate.getMonth() + direction);
+    } else {
+        const nextMonday = new Date(appState.currentWeekStart);
+        nextMonday.setDate(nextMonday.getDate() + (direction * 7));
+        appState.currentWeekStart = nextMonday;
+    }
+    renderPlanificadorSemana();
+}
 
-            const nextMonday = new Date(appState.currentWeekStart);
+function irASemanaHoy() {
+    const today = new Date();
+    appState.plannerMonthDate = new Date();
 
-            nextMonday.setDate(nextMonday.getDate() + (direction * 7));
+    const dayOfWeek = today.getDay();
+    const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+    const monday = new Date(today);
+    monday.setDate(today.getDate() + diffToMonday);
+    appState.currentWeekStart = monday;
 
-            appState.currentWeekStart = nextMonday;
-
-            renderAllViews();
-
-        }
-
-
-
-        function irASemanaHoy() {
-
-            const today = new Date();
-
-            const dayOfWeek = today.getDay();
-
-            const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
-
-            const monday = new Date(today);
-
-            monday.setDate(today.getDate() + diffToMonday);
-
-            appState.currentWeekStart = monday;
-
-            renderAllViews();
-
-        }
+    renderPlanificadorSemana();
+}
 
 
 
@@ -12627,4 +12460,4 @@ if (parsed.fechaBackup) {
         }
     </script>
 </body>
-</html>
+</html> 	
