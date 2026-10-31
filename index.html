@@ -12288,27 +12288,53 @@ if (parsed.fechaBackup) {
             if (intentos.length === 0) {
                 tbody.innerHTML = `<tr><td colspan="5" class="py-6 text-center text-slate-400 font-semibold italic">No hay intentos registrados para esta materia</td></tr>`;
             } else {
-                [...intentos].reverse().forEach(att => {
-                    const tr = document.createElement('tr');
-                    const c = att.correct || 0;
-                    const e = att.errors || 0;
-                    const b = (att.totalQ || 20) - (c + e);
-                    const neto = (c - e/3).toFixed(2);
-                    const aprobado = esTeorico70 ? (att.notaGlobal >= 25) : (att.notaGlobal >= 50);
+        [...intentos].reverse().forEach(att => {
+            const tr = document.createElement('tr');
+            const c = att.correct || 0;
+            const e = att.errors || 0;
+            const totalQ = att.totalQ || 20;
+            const b = totalQ - (c + e);
+            const pdNetaNum = Math.max(0, c - (e / 3));
+            const neto = pdNetaNum.toFixed(2);
 
-                    tr.className = "hover:bg-slate-50 border-b border-slate-100";
-                    tr.innerHTML = `
-                        <td class="py-2 px-3 font-mono font-bold">${att.date}</td>
-                        <td class="py-2 px-3 font-mono">${att.totalQ || 20} Q</td>
-                        <td class="py-2 px-3 font-mono"><span class="text-emerald-600 font-bold">${c} A</span> / <span class="text-rose-500 font-bold">${e} F</span> / <span class="text-slate-400">${b} B</span></td>
-                        <td class="py-2 px-3 font-mono font-bold">${neto} Neto</td>
-                        <td class="py-2 px-3 text-center font-mono font-black ${aprobado ? 'text-emerald-700' : 'text-rose-600'}">
-                            ${att.notaGlobal.toFixed(2)}${sufijo} ${aprobado ? '✓' : '✗'}
-                        </td>
-                    `;
-                    tbody.appendChild(tr);
-                });
+            let notaMostrada = 0;
+            let esAprobado = false;
+            let sufijoFila = sufijo;
+
+            if (esTeorico70 || totalQ === 70) {
+                // Cálculo homogéneo oficial INAP AGE sobre 50 PT
+                const corteRef = (appState.corteObjetivo && !isNaN(appState.corteObjetivo.p1)) 
+                    ? Number(appState.corteObjetivo.p1) 
+                    : 33.70;
+
+                if (pdNetaNum >= corteRef) {
+                    notaMostrada = 25 + 25 * ((pdNetaNum - corteRef) / (70 - corteRef));
+                } else {
+                    notaMostrada = 25 * (pdNetaNum / corteRef);
+                }
+                notaMostrada = Math.max(0, Math.min(50, notaMostrada));
+                esAprobado = notaMostrada >= 25;
+                sufijoFila = " PT";
+            } else {
+                // Para tests parciales normales
+                notaMostrada = totalQ > 0 ? (pdNetaNum / totalQ) * 100 : 0;
+                esAprobado = notaMostrada >= 50;
+                sufijoFila = "%";
             }
+
+            tr.className = "hover:bg-slate-50 border-b border-slate-100";
+            tr.innerHTML = `
+                <td class="py-2 px-3 font-mono font-bold">${att.date}</td>
+                <td class="py-2 px-3 font-mono">${totalQ} Q</td>
+                <td class="py-2 px-3 font-mono"><span class="text-emerald-600 font-bold">${c} A</span> / <span class="text-rose-500 font-bold">${e} F</span> / <span class="text-slate-400">${b} B</span></td>
+                <td class="py-2 px-3 font-mono font-bold">${neto} Neto</td>
+                <td class="py-2 px-3 text-center font-mono font-black ${esAprobado ? 'text-emerald-700' : 'text-rose-600'}">
+                    ${notaMostrada.toFixed(2)}${sufijoFila} ${esAprobado ? '✓' : 'X'}
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    }
 
             renderGraficoEvolucion(intentos, esTeorico70, esCompleto);
         }
